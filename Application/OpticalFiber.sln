@@ -1,0 +1,32 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio Version 16
+VisualStudioVersion = 16.0.29911.84
+MinimumVisualStudioVersion = 10.0.40219.1
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "OpticalFiber", "OpticalFiber.csproj", "{01660A2E-6342-4EB0-901D-CF8C62C4C894}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "ModBus", "ModBus", "{A92E7BBB-548B-4B83-BE7F-727439EE17E6}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Application", "Application", "{8D8A59B1-4BF6-478A-8971-9767C610C189}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{01660A2E-6342-4EB0-901D-CF8C62C4C894}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{01660A2E-6342-4EB0-901D-CF8C62C4C894}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{01660A2E-6342-4EB0-901D-CF8C62C4C894}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{01660A2E-6342-4EB0-901D-CF8C62C4C894}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(NestedProjects) = preSolution
+		{01660A2E-6342-4EB0-901D-CF8C62C4C894} = {8D8A59B1-4BF6-478A-8971-9767C610C189}
+	EndGlobalSection
+	GlobalSection(ExtensibilityGlobals) = postSolution
+		SolutionGuid = {40760B9A-34EF-4477-8764-38C7734D0CCD}
+	EndGlobalSection
+EndGlobal

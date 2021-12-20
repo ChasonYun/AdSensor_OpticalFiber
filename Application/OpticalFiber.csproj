@@ -1,0 +1,425 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="15.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <Import Project="$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props" Condition="Exists('$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props')" />
+  <PropertyGroup>
+    <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
+    <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
+    <ProjectGuid>{01660A2E-6342-4EB0-901D-CF8C62C4C894}</ProjectGuid>
+    <OutputType>WinExe</OutputType>
+    <RootNamespace>OpticalFiber</RootNamespace>
+    <AssemblyName>OpticalFiber</AssemblyName>
+    <TargetFrameworkVersion>v4.6.1</TargetFrameworkVersion>
+    <FileAlignment>512</FileAlignment>
+    <AutoGenerateBindingRedirects>true</AutoGenerateBindingRedirects>
+    <Deterministic>true</Deterministic>
+    <NuGetPackageImportStamp>
+    </NuGetPackageImportStamp>
+    <TargetFrameworkProfile />
+    <IsWebBootstrapper>false</IsWebBootstrapper>
+    <PublishUrl>publish\</PublishUrl>
+    <Install>true</Install>
+    <InstallFrom>Disk</InstallFrom>
+    <UpdateEnabled>false</UpdateEnabled>
+    <UpdateMode>Foreground</UpdateMode>
+    <UpdateInterval>7</UpdateInterval>
+    <UpdateIntervalUnits>Days</UpdateIntervalUnits>
+    <UpdatePeriodically>false</UpdatePeriodically>
+    <UpdateRequired>false</UpdateRequired>
+    <MapFileExtensions>true</MapFileExtensions>
+    <ApplicationRevision>1</ApplicationRevision>
+    <ApplicationVersion>1.0.0.%2a</ApplicationVersion>
+    <UseApplicationTrust>false</UseApplicationTrust>
+    <PublishWizardCompleted>true</PublishWizardCompleted>
+    <BootstrapperEnabled>true</BootstrapperEnabled>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
+    <PlatformTarget>AnyCPU</PlatformTarget>
+    <DebugSymbols>true</DebugSymbols>
+    <DebugType>full</DebugType>
+    <Optimize>false</Optimize>
+    <OutputPath>bin\Debug\</OutputPath>
+    <DefineConstants>DEBUG;TRACE</DefineConstants>
+    <ErrorReport>prompt</ErrorReport>
+    <WarningLevel>4</WarningLevel>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
+    <PlatformTarget>AnyCPU</PlatformTarget>
+    <DebugType>pdbonly</DebugType>
+    <Optimize>true</Optimize>
+    <OutputPath>bin\Release\</OutputPath>
+    <DefineConstants>TRACE</DefineConstants>
+    <ErrorReport>prompt</ErrorReport>
+    <WarningLevel>4</WarningLevel>
+  </PropertyGroup>
+  <PropertyGroup>
+    <ManifestCertificateThumbprint>FF5FD6FB63DBCCE43EC88C3CC96F9CF98132A43E</ManifestCertificateThumbprint>
+  </PropertyGroup>
+  <PropertyGroup>
+    <ManifestKeyFile>OpticalFiber_TemporaryKey.pfx</ManifestKeyFile>
+  </PropertyGroup>
+  <PropertyGroup>
+    <GenerateManifests>true</GenerateManifests>
+  </PropertyGroup>
+  <PropertyGroup>
+    <SignManifests>false</SignManifests>
+  </PropertyGroup>
+  <ItemGroup>
+    <Reference Include="Authorize">
+      <HintPath>..\Authorize\bin\Release\netstandard2.0\Authorize.dll</HintPath>
+    </Reference>
+    <Reference Include="BouncyCastle.Crypto, Version=1.8.5.0, Culture=neutral, PublicKeyToken=0e99375e54769942">
+      <HintPath>packages\BouncyCastle.1.8.5\lib\BouncyCastle.Crypto.dll</HintPath>
+    </Reference>
+    <Reference Include="Google.Protobuf, Version=3.11.2.0, Culture=neutral, PublicKeyToken=a7d26565bac4d604, processorArchitecture=MSIL">
+      <HintPath>packages\Google.Protobuf.3.11.2\lib\net45\Google.Protobuf.dll</HintPath>
+    </Reference>
+    <Reference Include="MySql.Data, Version=8.0.18.0, Culture=neutral, PublicKeyToken=c5687fc88969c44d, processorArchitecture=MSIL">
+      <HintPath>packages\MySql.Data.8.0.18\lib\net452\MySql.Data.dll</HintPath>
+    </Reference>
+    <Reference Include="Renci.SshNet, Version=2016.1.0.0, Culture=neutral, PublicKeyToken=1cee9f8bde3db106, processorArchitecture=MSIL">
+      <HintPath>packages\SSH.NET.2016.1.0\lib\net40\Renci.SshNet.dll</HintPath>
+    </Reference>
+    <Reference Include="System" />
+    <Reference Include="System.Buffers, Version=4.0.3.0, Culture=neutral, PublicKeyToken=cc7b13ffcd2ddd51, processorArchitecture=MSIL">
+      <HintPath>packages\System.Buffers.4.5.0\lib\netstandard2.0\System.Buffers.dll</HintPath>
+    </Reference>
+    <Reference Include="System.ComponentModel" />
+    <Reference Include="System.ComponentModel.DataAnnotations" />
+    <Reference Include="System.Configuration" />
+    <Reference Include="System.Configuration.Install" />
+    <Reference Include="System.Core" />
+    <Reference Include="System.Drawing.Design" />
+    <Reference Include="System.Management" />
+    <Reference Include="System.Memory, Version=4.0.1.1, Culture=neutral, PublicKeyToken=cc7b13ffcd2ddd51, processorArchitecture=MSIL">
+      <HintPath>packages\System.Memory.4.5.3\lib\netstandard2.0\System.Memory.dll</HintPath>
+    </Reference>
+    <Reference Include="System.Numerics" />
+    <Reference Include="System.Numerics.Vectors, Version=4.1.4.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a, processorArchitecture=MSIL">
+      <HintPath>packages\System.Numerics.Vectors.4.5.0\lib\net46\System.Numerics.Vectors.dll</HintPath>
+    </Reference>
+    <Reference Include="System.Runtime.CompilerServices.Unsafe, Version=4.0.6.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a, processorArchitecture=MSIL">
+      <HintPath>packages\System.Runtime.CompilerServices.Unsafe.4.7.0\lib\netstandard2.0\System.Runtime.CompilerServices.Unsafe.dll</HintPath>
+    </Reference>
+    <Reference Include="System.Transactions" />
+    <Reference Include="System.Windows.Forms.DataVisualization" />
+    <Reference Include="System.Xml.Linq" />
+    <Reference Include="System.Data.DataSetExtensions" />
+    <Reference Include="Microsoft.CSharp" />
+    <Reference Include="System.Data" />
+    <Reference Include="System.Deployment" />
+    <Reference Include="System.Drawing" />
+    <Reference Include="System.Net.Http" />
+    <Reference Include="System.Windows.Forms" />
+    <Reference Include="System.Xml" />
+  </ItemGroup>
+  <ItemGroup>
+    <Compile Include="Data\AlarmStatus.cs" />
+    <Compile Include="Data\Excel.cs" />
+    <Compile Include="FrmReset.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="FrmReset.Designer.cs">
+      <DependentUpon>FrmReset.cs</DependentUpon>
+    </Compile>
+    <Compile Include="Froms\FrmInitDB.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="Froms\FrmInitDB.Designer.cs">
+      <DependentUpon>FrmInitDB.cs</DependentUpon>
+    </Compile>
+    <Compile Include="Froms\FrmAuthorize.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="Froms\FrmAuthorize.Designer.cs">
+      <DependentUpon>FrmAuthorize.cs</DependentUpon>
+    </Compile>
+    <Compile Include="Froms\FrmCheckPwd.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="Froms\FrmCheckPwd.Designer.cs">
+      <DependentUpon>FrmCheckPwd.cs</DependentUpon>
+    </Compile>
+    <Compile Include="ModBus\AsyncSocket.cs" />
+    <Compile Include="Config\ConfigClass.cs" />
+    <Compile Include="ModBus\ModBusTCP\ModBusTCP_SyncNetWorkStream.cs" />
+    <Compile Include="ModBus\DataAnalysis.cs" />
+    <Compile Include="Data\DataClass.cs" />
+    <Compile Include="Data\DataInit.cs" />
+    <Compile Include="Froms\FrmLogin.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="Froms\FrmLogin.Designer.cs">
+      <DependentUpon>FrmLogin.cs</DependentUpon>
+    </Compile>
+    <Compile Include="Froms\FrmMain.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="Froms\FrmMain.Designer.cs">
+      <DependentUpon>FrmMain.cs</DependentUpon>
+    </Compile>
+    <Compile Include="Froms\FrmPwdManagement.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="Froms\FrmPwdManagement.Designer.cs">
+      <DependentUpon>FrmPwdManagement.cs</DependentUpon>
+    </Compile>
+    <Compile Include="ModBus\ModBus.cs" />
+    <Compile Include="ModBus\ModBusRTU\CRC16.cs" />
+    <Compile Include="ModBus\ModBusRTU\ModBusRTU.cs" />
+    <Compile Include="ModBus\ModBusRTU\WorkThread_RTU.cs" />
+    <Compile Include="ModBus\ModBusRTU\_SerialPort.cs" />
+    <Compile Include="ModBus\ModBusTCP\TCP.cs" />
+    <Compile Include="ModBus\ModBusTCP\WorkTread_TCP.cs" />
+    <Compile Include="Program.cs" />
+    <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="Properties\Resources.Designer.cs">
+      <AutoGen>True</AutoGen>
+      <DesignTime>True</DesignTime>
+      <DependentUpon>Resources.resx</DependentUpon>
+    </Compile>
+    <Compile Include="SQL\MD5.cs" />
+    <Compile Include="SQL\SQL_Create.cs" />
+    <Compile Include="SQL\SQL_Delete.cs" />
+    <Compile Include="SQL\SQL_Insert.cs" />
+    <Compile Include="SQL\SQL_Select.cs" />
+    <Compile Include="SQL\SQL_Update.cs" />
+    <Compile Include="ModBus\SyncSocket.cs" />
+    <Compile Include="UCControls\UCAlarmData.cs">
+      <SubType>UserControl</SubType>
+    </Compile>
+    <Compile Include="UCControls\UCAlarmData.Designer.cs">
+      <DependentUpon>UCAlarmData.cs</DependentUpon>
+    </Compile>
+    <Compile Include="UCControls\UCAudit.cs">
+      <SubType>UserControl</SubType>
+    </Compile>
+    <Compile Include="UCControls\UCAudit.Designer.cs">
+      <DependentUpon>UCAudit.cs</DependentUpon>
+    </Compile>
+    <Compile Include="UCControls\UCChannelMsg.cs">
+      <SubType>UserControl</SubType>
+    </Compile>
+    <Compile Include="UCControls\UCChannelMsg.Designer.cs">
+      <DependentUpon>UCChannelMsg.cs</DependentUpon>
+    </Compile>
+    <Compile Include="UCControls\UCChart.cs">
+      <SubType>UserControl</SubType>
+    </Compile>
+    <Compile Include="UCControls\UCChart.Designer.cs">
+      <DependentUpon>UCChart.cs</DependentUpon>
+    </Compile>
+    <Compile Include="UCControls\UCLines.cs">
+      <SubType>UserControl</SubType>
+    </Compile>
+    <Compile Include="UCControls\UCLines.Designer.cs">
+      <DependentUpon>UCLines.cs</DependentUpon>
+    </Compile>
+    <Compile Include="UCControls\UCMainPage.cs">
+      <SubType>UserControl</SubType>
+    </Compile>
+    <Compile Include="UCControls\UCMainPage.Designer.cs">
+      <DependentUpon>UCMainPage.cs</DependentUpon>
+    </Compile>
+    <Compile Include="UCControls\UCPartitionManagement.cs">
+      <SubType>UserControl</SubType>
+    </Compile>
+    <Compile Include="UCControls\UCPartitionManagement.Designer.cs">
+      <DependentUpon>UCPartitionManagement.cs</DependentUpon>
+    </Compile>
+    <Compile Include="UCControls\UCRunStatus.cs">
+      <SubType>UserControl</SubType>
+    </Compile>
+    <Compile Include="UCControls\UCRunStatus.Designer.cs">
+      <DependentUpon>UCRunStatus.cs</DependentUpon>
+    </Compile>
+    <Compile Include="UCControls\UCSysConfig.cs">
+      <SubType>UserControl</SubType>
+    </Compile>
+    <Compile Include="UCControls\UCSysConfig.Designer.cs">
+      <DependentUpon>UCSysConfig.cs</DependentUpon>
+    </Compile>
+    <Compile Include="UCControls\UCTreeView.cs">
+      <SubType>UserControl</SubType>
+    </Compile>
+    <Compile Include="UCControls\UCTreeView.Designer.cs">
+      <DependentUpon>UCTreeView.cs</DependentUpon>
+    </Compile>
+    <EmbeddedResource Include="FrmReset.resx">
+      <DependentUpon>FrmReset.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Froms\FrmInitDB.resx">
+      <DependentUpon>FrmInitDB.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Froms\FrmAuthorize.resx">
+      <DependentUpon>FrmAuthorize.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Froms\FrmCheckPwd.resx">
+      <DependentUpon>FrmCheckPwd.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Froms\FrmLogin.resx">
+      <DependentUpon>FrmLogin.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Froms\FrmMain.resx">
+      <DependentUpon>FrmMain.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Froms\FrmPwdManagement.resx">
+      <DependentUpon>FrmPwdManagement.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Properties\Resources.resx">
+      <Generator>ResXFileCodeGenerator</Generator>
+      <SubType>Designer</SubType>
+      <LastGenOutput>Resources.Designer.cs</LastGenOutput>
+    </EmbeddedResource>
+    <EmbeddedResource Include="UCControls\UCAlarmData.resx">
+      <DependentUpon>UCAlarmData.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="UCControls\UCAudit.resx">
+      <DependentUpon>UCAudit.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="UCControls\UCChannelMsg.resx">
+      <DependentUpon>UCChannelMsg.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="UCControls\UCChart.resx">
+      <DependentUpon>UCChart.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="UCControls\UCLines.resx">
+      <DependentUpon>UCLines.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="UCControls\UCMainPage.resx">
+      <DependentUpon>UCMainPage.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="UCControls\UCPartitionManagement.resx">
+      <DependentUpon>UCPartitionManagement.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="UCControls\UCRunStatus.resx">
+      <DependentUpon>UCRunStatus.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="UCControls\UCSysConfig.resx">
+      <DependentUpon>UCSysConfig.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="UCControls\UCTreeView.resx">
+      <DependentUpon>UCTreeView.cs</DependentUpon>
+    </EmbeddedResource>
+    <None Include="App.config" />
+    <None Include="OpticalFiber_TemporaryKey.pfx" />
+    <None Include="packages.config" />
+    <None Include="Properties\Settings.settings">
+      <Generator>SettingsSingleFileGenerator</Generator>
+      <LastGenOutput>Settings.Designer.cs</LastGenOutput>
+    </None>
+    <Compile Include="Properties\Settings.Designer.cs">
+      <AutoGen>True</AutoGen>
+      <DependentUpon>Settings.settings</DependentUpon>
+      <DesignTimeSharedInput>True</DesignTimeSharedInput>
+    </Compile>
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Resources\user.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Resources\logo1.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Resources\backGround3.jpg" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Resources\Gray.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Resources\green.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Resources\灯光.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Resources\红灯光.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Resources\黄灯光.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Resources\status_FaultAlarm.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Resources\status_FaultAlarm_.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Resources\user1.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Resources\userNormal1.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Resources\userAdmin.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Resources\userOperator.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Resources\fullScreen.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Resources\start.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Resources\start1.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Resources\reset.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Resources\mute.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Resources\mainPage.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Resources\mainPage1.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Resources\spline.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Resources\powerStation.jpg" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Resources\Frm_Close.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <BootstrapperPackage Include=".NETFramework,Version=v4.7.2">
+      <Visible>False</Visible>
+      <ProductName>Microsoft .NET Framework 4.7.2 %28x86 和 x64%29</ProductName>
+      <Install>true</Install>
+    </BootstrapperPackage>
+    <BootstrapperPackage Include="Microsoft.Net.Framework.3.5.SP1">
+      <Visible>False</Visible>
+      <ProductName>.NET Framework 3.5 SP1</ProductName>
+      <Install>false</Install>
+    </BootstrapperPackage>
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Resources\status_FireAlarm.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Resources\status_FireAlarm_.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Resources\alarmVoice.wav" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Resources\faultVoice.wav" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Resources\userNormal.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Resources\reset_.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Resources\关闭.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Resources\最小化.png" />
+  </ItemGroup>
+  <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
+</Project>
