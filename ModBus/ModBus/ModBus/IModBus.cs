@@ -48,7 +48,7 @@ namespace ModBus.ModBus
         /// <returns></returns>
         bool WriteMultipleRegisters(int startAdd, int[] values, out string response);
         /// <summary>
-        /// 读多个寄存器
+        /// 读多个输入寄存器
         /// </summary>
         /// <param name="startAdd">开始地址</param>
         /// <param name="count">数量</param>
@@ -56,5 +56,15 @@ namespace ModBus.ModBus
         /// <param name="response">异常时 信息</param>
         /// <returns></returns>
         bool ReadInputRegisters(int startAdd, int count, out int[] values, out string response);
+
+        /// <summary>
+        /// 读多个保持寄存器
+        /// </summary>
+        /// <param name="startAdd">开始地址</param>
+        /// <param name="count">数量</param>
+        /// <param name="values">值</param>
+        /// <param name="response">异常时 信息</param>
+        /// <returns></returns>
+        bool ReadHoldingRegisters(int startAdd, int count, out int[] values, out string response);
     }
 }

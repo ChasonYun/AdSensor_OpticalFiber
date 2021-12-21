@@ -70,6 +70,22 @@ namespace ModBus
             }
         }
 
+        public bool ReadHoldingRegisters(int startAdd, int count, out int[] values, out string response)
+        {
+            values = null;
+            response = string.Empty;
+            try
+            {
+                values = modbusClient.ReadHoldingRegisters(startAdd, count);
+                return true;
+            }
+            catch (Exception ex)
+            {
+                response = ex.Message;
+                return false;
+            }
+        }
+
         public bool WriteMultipleRegisters(int startAdd, int[] values, out string response)
         {
             response = string.Empty;

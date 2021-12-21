@@ -9,6 +9,8 @@ namespace OpticalFiber
 {
     class SQL_Update
     {
+        const string userName = "root";//root
+        const string password = "123456";//adsensor
         MySqlCommand cmd;
         MySqlConnection conn;
 
@@ -19,7 +21,7 @@ namespace OpticalFiber
         {
             try
             {
-                string connstr = "data source =localhost;database=SM9003;user id=root;password=adsensor;pooling=false;charset=utf8";
+                string connstr = $"data source =localhost;database=SM9003;user id={userName};password={password};pooling=false;charset=utf8";
                 string sql = "update sensor set sensorName='" + sesnsorname + "',startAdd='" + startadd + "',nodeNumber='" + nodenumber + "',isEnable='1' where sensorId='" + sensorid + "'";
                 conn = new MySqlConnection(connstr);
                 cmd = new MySqlCommand(sql, conn);
@@ -49,7 +51,7 @@ namespace OpticalFiber
         {
             try
             {
-                string connstr = "data source =localhost;database=SM9003;user id=root;password=adsensor;pooling=false;charset=utf8";
+                string connstr = $"data source =localhost;database=SM9003;user id={userName};password={password};pooling=false;charset=utf8";
                 string sql = "update sensor set sensorName='探测器" + sensorid + "',startAdd='1',nodeNumber='60',isEnable='0' where sensorId='" + sensorid + "'";
                 conn = new MySqlConnection(connstr);
                 cmd = new MySqlCommand(sql, conn);
@@ -79,7 +81,7 @@ namespace OpticalFiber
         {
             try
             {
-                string connstr = "data source =localhost;database=SM9003;user id=root;password=adsensor;pooling=false;charset=utf8";
+                string connstr = $"data source =localhost;database=SM9003;user id={userName};password={password};pooling=false;charset=utf8";
                 string sql = "update sensor set sensorName='" + sesnsorname + "',startAdd='" + startadd + "',nodeNumber='" + nodenumber + "',isEnable='1' where sensorId='" + sensorid + "'";
                 conn = new MySqlConnection(connstr);
                 cmd = new MySqlCommand(sql, conn);
@@ -107,7 +109,7 @@ namespace OpticalFiber
         {
             try
             {
-                string connstr = "data source =localhost;database=SM2003;user id=root;password=adsensor;pooling=false;charset=utf8";
+                string connstr = $"data source =localhost;database=SM2003;user id={userName};password={password};pooling=false;charset=utf8";
                 string sql = "update prjname set prjname='" + prjname + "' where prjid='" + prjid + "'";
                 conn = new MySqlConnection(connstr);
                 cmd = new MySqlCommand(sql, conn);
@@ -130,7 +132,7 @@ namespace OpticalFiber
         {
             try
             {
-                string connstr = "data source =localhost;database=SM2003;user id=root;password=adsensor;pooling=false;charset=utf8";
+                string connstr = $"data source =localhost;database=SM2003;user id={userName};password={password};pooling=false;charset=utf8";
                 string sql = "update device set deviceName='" + struct_DeviceEnable.name + "',ipAddress='" + struct_DeviceEnable.ipEndPoint.Address.ToString() + "',port='" + struct_DeviceEnable.ipEndPoint.Port + "',enable='" + Convert.ToInt32(struct_DeviceEnable.enable) + "' where deviceNo='" + deviceNo + "'";
                 conn = new MySqlConnection(connstr);
                 cmd = new MySqlCommand(sql, conn);
@@ -156,7 +158,7 @@ namespace OpticalFiber
         {
             try
             {
-                string connstr = "data source =localhost;database=SM2003;user id=root;password=adsensor;pooling=false;charset=utf8";
+                string connstr = $"data source =localhost;database=SM2003;user id={userName};password={password};pooling=false;charset=utf8";
                 string sql = "update prtname set prtName='" + prtName.prtName + "' where deviceNo='" + prtName.deviceNo + "' and  channelNo='" + prtName.channelNo + "' and prtNo='" + prtName.prtNo + "'";
                 conn = new MySqlConnection(connstr);
                 cmd = new MySqlCommand(sql, conn);
@@ -186,7 +188,7 @@ namespace OpticalFiber
         {
             try
             {
-                string connstr = "data source =localhost;database=SM2003;user id=root;password=adsensor;pooling=false;charset=utf8";
+                string connstr = $"data source =localhost;database=SM2003;user id={userName};password={password};pooling=false;charset=utf8";
                 string sql = "update channel set channelName='" + struct_ChannelMsg.channelName + "',locationX='" + struct_ChannelMsg.locationX + "' ,locationY='" + struct_ChannelMsg.locationY + "',isEnable='" + Convert.ToInt32(struct_ChannelMsg.isEnable) + "' where deviceNo='" + struct_ChannelMsg.deviceNo + "' and  channelNo='" + struct_ChannelMsg.channelNo + "'";
                 conn = new MySqlConnection(connstr);
                 cmd = new MySqlCommand(sql, conn);
@@ -217,7 +219,7 @@ namespace OpticalFiber
         {
             try
             {
-                string connstr = "data source =localhost;database=SM2003;user id=root;password=adsensor;pooling=false;charset=utf8";
+                string connstr = $"data source =localhost;database=SM2003;user id={userName};password={password};pooling=false;charset=utf8";
                 string sql = "update pagepic set pic=@image where picNo='" + picNo + "'";
                 conn = new MySqlConnection(connstr);
                 cmd = new MySqlCommand(sql, conn);
@@ -245,7 +247,7 @@ namespace OpticalFiber
         {
             try
             {
-                string connstr = "data source =localhost;database=SM2003;user id=root;password=adsensor;pooling=false;charset=utf8";
+                string connstr = $"data source =localhost;database=SM2003;user id={userName};password={password};pooling=false;charset=utf8";
                 string sql = "update pwd set  passWord='" + MD5.GetMD5Hash(pwd) + "' where userName='" + userName + "'";
                 conn = new MySqlConnection(connstr);
                 cmd = new MySqlCommand(sql, conn);

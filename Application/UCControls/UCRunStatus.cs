@@ -24,27 +24,27 @@ namespace OpticalFiber
         {
             try
             {
-                lblDevice.Text = "设备" + deviceNo;
-                double referTemper = (double)DataClass.list_DeviceParam[deviceNo].struct_deivceParam.referTemper / 100;
-                double chassisTemper = (double)DataClass.list_DeviceParam[deviceNo].struct_deivceParam.chassisTemper / 100;
-                double compensation = (double)DataClass.list_DeviceParam[deviceNo].struct_deivceParam.compensationCoefficient / 1000;
-                lblReferTemper.Text = "参考温度：" + referTemper + "℃";
-                lblChasissTemper.Text = "机箱温度：" + chassisTemper + "℃";
-                lblCompnsation.Text = "补偿系数：" + compensation;
-                int channelNo = DataClass.list_DeviceParam[deviceNo].struct_deivceParam.scanModel & 0xff;
-                ChangeVisiable(channelNo);
-                for (int i = 1; i <= channelNo; i++)
-                {
-                    if (DataClass.list_DeviceChannelParam[deviceNo].struct_DeviceChannelParam.struct_ChannelParams[i].checkStatus == 0)
-                    {
-                        this.Controls.Find("lblDetectionStatus_" + i, false)[0].Text = "准备中...";
-                    }
-                    if (DataClass.list_DeviceChannelParam[deviceNo].struct_DeviceChannelParam.struct_ChannelParams[i].checkStatus == 1)
-                    {
-                        this.Controls.Find("lblDetectionStatus_" + i, false)[0].Text = "检测中...";
-                    }
-                }
-                if (!DataClass.list_DeviceEnables[deviceNo - 1].enable ||  !DataClass.IsRunning)//未启用 停止
+                lblDevice.Text = "设备" + (deviceNo + 1);
+                //double referTemper = (double)DataClass.list_DeviceParam[deviceNo].struct_deivceParam.referTemper / 100;
+                //double chassisTemper = (double)DataClass.list_DeviceParam[deviceNo].struct_deivceParam.chassisTemper / 100;
+                //double compensation = (double)DataClass.list_DeviceParam[deviceNo].struct_deivceParam.compensationCoefficient / 1000;
+                lblReferTemper.Text = "通道测量时间：" + ModBusService.Instance().dtsModBuses[deviceNo].dtsDeviceDataModel.ChannelSettingInfo.Time / 10 + "ms";
+                lblChasissTemper.Text = "设定温度间隔：" + ModBusService.Instance().dtsModBuses[deviceNo].dtsDeviceDataModel.ChannelSettingInfo.TempInterval + "m";
+                lblCompnsation.Text = "设定温度精度：" + ModBusService.Instance().dtsModBuses[deviceNo].dtsDeviceDataModel.ChannelSettingInfo.Accuracy;
+                //int channelNo = DataClass.list_DeviceParam[deviceNo].struct_deivceParam.scanModel & 0xff;
+                //ChangeVisiable(channelNo);
+                //for (int i = 1; i <= channelNo; i++)
+                //{
+                //    if (DataClass.list_DeviceChannelParam[deviceNo].struct_DeviceChannelParam.struct_ChannelParams[i].checkStatus == 0)
+                //    {
+                //        this.Controls.Find("lblDetectionStatus_" + i, false)[0].Text = "准备中...";
+                //    }
+                //    if (DataClass.list_DeviceChannelParam[deviceNo].struct_DeviceChannelParam.struct_ChannelParams[i].checkStatus == 1)
+                //    {
+                //        this.Controls.Find("lblDetectionStatus_" + i, false)[0].Text = "检测中...";
+                //    }
+                //}
+                if (!DataClass.list_DeviceEnables[deviceNo].enable || !DataClass.IsRunning)//未启用 停止
                 {
                     this.BackColor = Color.Gray;
                     pnlAlarmMsg.Visible = true;
@@ -54,15 +54,39 @@ namespace OpticalFiber
                 {
                     this.BackColor = Color.Green;
                     pnlAlarmMsg.Visible = false;
-                    if (DataClass.list_TcpCommFault[deviceNo])
+                    if (ModBusService.Instance().dtsModBuses[deviceNo].dtsDeviceDataModel.Device_FaultInfo.IsNetCommunFault > 0)
                     {
                         this.BackColor = Color.Yellow;
                         pnlAlarmMsg.Visible = true;
                         lblAlarmMsg.Text = "通讯故障";
                     }
-                    for (int j = 1; j <= 4; j++)
+                    if (ModBusService.Instance().dtsModBuses[deviceNo].dtsDeviceDataModel.Device_FaultInfo.IsCommunctionFault > 0)
                     {
-                        if (AlarmStatus.isBroken.deviceIsBrokens[deviceNo].channelIsBrokens[j].isbroken)//有断纤 故障 
+                        this.BackColor = Color.Yellow;
+                        pnlAlarmMsg.Visible = true;
+                        lblAlarmMsg.Text = "采集模块通讯故障";
+                    }
+                    if (ModBusService.Instance().dtsModBuses[deviceNo].dtsDeviceDataModel.Device_FaultInfo.IsMainPowerFault > 0)
+                    {
+                        this.BackColor = Color.Yellow;
+                        pnlAlarmMsg.Visible = true;
+                        lblAlarmMsg.Text = "主电故障";
+                    }
+                    if (ModBusService.Instance().dtsModBuses[deviceNo].dtsDeviceDataModel.Device_FaultInfo.IsBackUpPowerFault > 0)
+                    {
+                        this.BackColor = Color.Yellow;
+                        pnlAlarmMsg.Visible = true;
+                        lblAlarmMsg.Text = "备电故障";
+                    }
+                    if (ModBusService.Instance().dtsModBuses[deviceNo].dtsDeviceDataModel.Device_FaultInfo.IsChargeFault > 0)
+                    {
+                        this.BackColor = Color.Yellow;
+                        pnlAlarmMsg.Visible = true;
+                        lblAlarmMsg.Text = "充电故障";
+                    }
+                    for (int j = 0; j < 8; j++)
+                    {
+                        if (ModBusService.Instance().dtsModBuses[deviceNo].dtsDeviceDataModel.DtsChannelDataModels[j].Channel_BaseInfo.IsBrokenAlarm > 0)//有断纤 故障 
                         {
                             this.BackColor = Color.Yellow;
                             pnlAlarmMsg.Visible = true;
@@ -71,18 +95,18 @@ namespace OpticalFiber
                         }
                     }
 
-                    for (int j = 1; j <= 4; j++)
+                    for (int j = 0; j < 8; j++)
                     {
-                        for (int k = 1; k <= 50; k++)
+                        if (ModBusService.Instance().dtsModBuses[deviceNo].dtsDeviceDataModel.DtsChannelDataModels[j].Channel_BaseInfo.DingWenAlarmCount > 0
+                            || ModBusService.Instance().dtsModBuses[deviceNo].dtsDeviceDataModel.DtsChannelDataModels[j].Channel_BaseInfo.ChaWenAlarmCount > 0
+                            || ModBusService.Instance().dtsModBuses[deviceNo].dtsDeviceDataModel.DtsChannelDataModels[j].Channel_BaseInfo.WenShengAlarmCount > 0)//有火警
                         {
-                            if (AlarmStatus.isAlarm.deviceAlarms[deviceNo].channelAlarms[j].partitionAlarms[k].isFireAlarm || AlarmStatus.isAlarm.deviceAlarms[deviceNo].channelAlarms[j].partitionAlarms[k].isRiseAlarm)//有火警
-                            {
-                                this.BackColor = Color.Red;
-                                pnlAlarmMsg.Visible = true;
-                                lblAlarmMsg.Text = "火警";
-                                break;
-                            }
+                            this.BackColor = Color.Red;
+                            pnlAlarmMsg.Visible = true;
+                            lblAlarmMsg.Text = "火警";
+                            break;
                         }
+
                     }
                 }
             }

@@ -91,7 +91,7 @@ namespace OpticalFiber
 
         public static List<struct_PrtName> list_PrtName = new List<struct_PrtName>();
 
-        public static bool[] list_TcpCommFault = new bool[9];//通讯异常 判断标志位
+        public static bool[] list_TcpCommFault = new bool[8];//通讯异常 判断标志位
 
         public static int[,] temper_Now = new int[257, 257];//记录 实时温度
         public static int[] commFault_Count = new int[257];//通讯故障计数

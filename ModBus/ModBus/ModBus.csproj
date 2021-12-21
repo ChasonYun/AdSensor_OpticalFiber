@@ -44,6 +44,13 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="DtsModBus.cs" />
+    <Compile Include="ModBus\IModBus.cs" />
+    <Compile Include="ModBus\ModBusTcp.cs" />
+    <Compile Include="Model\DtsChannelDataModel.cs" />
+    <Compile Include="Model\DtsDeviceDataModel.cs" />
+    <Compile Include="Model\DtsModel.cs" />
+    <Compile Include="Model\DtsPartDataModel.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
   <ItemGroup>

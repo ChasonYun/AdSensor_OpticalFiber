@@ -8,15 +8,16 @@ using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
 using System.Windows.Forms;
+using ModBus;
 
 namespace OpticalFiber
 {
-    public class WorkTread_TCP
+    public class _WorkTread_TCP
     {
         //Controller
         struct_DeviceEnable _Device;
 
-        public WorkTread_TCP(int type)
+        public _WorkTread_TCP(int type)
         {
             try
             {
@@ -43,6 +44,7 @@ namespace OpticalFiber
                                 {
                                     //TCP modbusTCP = new ModBusTCP_SyncSocket(_Device.ipEndPoint);//
                                     TCP modbusTCP = new ModBusTCP_SyncNetWorkStream(_Device.ipEndPoint);//
+                                  
                                 }
                                 catch (Exception)
                                 {

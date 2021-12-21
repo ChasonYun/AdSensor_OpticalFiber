@@ -11,6 +11,8 @@ namespace OpticalFiber
 {
     public class SQL_Select
     {
+        const string userName = "root";//root
+        const string password = "123456";//adsensor
         MySqlCommand cmd;
         MySqlConnection conn;
 
@@ -24,7 +26,7 @@ namespace OpticalFiber
             string name = null;
             try
             {
-                string connstr = "data source =localhost;database=SM2003;user id=root;password=adsensor;pooling=false;charset=utf8";
+                string connstr = $"data source =localhost;database=SM2003;user id={userName};password={password};pooling=false;charset=utf8";
                 string sql = "select * from prjname where prjId='" + prjId + "'";
                 conn = new MySqlConnection(connstr);
                 cmd = new MySqlCommand(sql, conn);
@@ -54,14 +56,14 @@ namespace OpticalFiber
         /// </summary>
         /// <param name="userName"></param>
         /// <returns></returns>
-        public string Select_Pwd(int userName)
+        public string Select_Pwd(int name)
         {
-            string password = null;
+            string passWord = null;
             try
             {
-                string connstr = "data source =localhost;database=SM2003;user id=root;password=adsensor;pooling=false;charset=utf8";
+                string connstr = $"data source =localhost;database=SM2003;user id={userName};password={password};pooling=false;charset=utf8";
                 string sql = null;
-                switch (userName)
+                switch (name)
                 {
                     case 0:
                         sql = "select passWord from pwd where userName='generalUser'";
@@ -77,11 +79,11 @@ namespace OpticalFiber
                 conn = new MySqlConnection(connstr);
                 cmd = new MySqlCommand(sql, conn);
                 conn.Open();
-                password = cmd.ExecuteScalar().ToString();
+                passWord = cmd.ExecuteScalar().ToString();
             }
             catch (Exception ex)
             {
-                throw new Exception("获取项目名称失败" + ex.Message);
+                throw new Exception("查询密码 MD5值" + ex.Message);
             }
             finally
             {
@@ -89,7 +91,7 @@ namespace OpticalFiber
                 conn = null;
                 cmd = null;
             }
-            return password;
+            return passWord;
         }
 
         /// <summary>
@@ -104,7 +106,7 @@ namespace OpticalFiber
             int port;
             try
             {
-                string connstr = "data source =localhost;database=SM2003;user id=root;password=adsensor;pooling=false;charset=utf8";
+                string connstr = $"data source =localhost;database=SM2003;user id={userName};password={password};pooling=false;charset=utf8";
                 string sql = "select *  from device  order by deviceNo ";
                 conn = new MySqlConnection(connstr);
                 cmd = new MySqlCommand(sql, conn);
@@ -146,7 +148,7 @@ namespace OpticalFiber
             struct_PrtName struct_PrtName;
             try
             {
-                string connstr = "data source =localhost;database=SM2003;user id=root;password=adsensor;pooling=false;charset=utf8";
+                string connstr = $"data source =localhost;database=SM2003;user id={userName};password={password};pooling=false;charset=utf8";
                 string sql = "select *  from prtname where deviceNo='" + deviceNo + "' and channelNo='" + channlNo + "' order by prtNo ";
                 conn = new MySqlConnection(connstr);
                 cmd = new MySqlCommand(sql, conn);
@@ -184,7 +186,7 @@ namespace OpticalFiber
             struct_PrtName struct_PrtName;
             try
             {
-                string connstr = "data source =localhost;database=SM2003;user id=root;password=adsensor;pooling=false;charset=utf8";
+                string connstr = $"data source =localhost;database=SM2003;user id={userName};password={password};pooling=false;charset=utf8";
                 string sql = "select *  from prtname order by deviceNo,channelNo,prtNo ";
                 conn = new MySqlConnection(connstr);
                 cmd = new MySqlCommand(sql, conn);
@@ -218,7 +220,7 @@ namespace OpticalFiber
             struct_ChannelMsg struct_ChannelMsg;
             try
             {
-                string connstr = "data source =localhost;database=SM2003;user id=root;password=adsensor;pooling=false;charset=utf8";
+                string connstr = $"data source =localhost;database=SM2003;user id={userName};password={password};pooling=false;charset=utf8";
                 string sql = "select *  from channel order by deviceNo,channelNo ";
                 conn = new MySqlConnection(connstr);
                 cmd = new MySqlCommand(sql, conn);
@@ -253,7 +255,7 @@ namespace OpticalFiber
             byte[] bytes;
             try
             {
-                string connstr = "data source =localhost;database=SM2003;user id=root;password=adsensor;pooling=false;charset=utf8";
+                string connstr = $"data source =localhost;database=SM2003;user id={userName};password={password};pooling=false;charset=utf8";
                 string sql = "select pic  from pagepic where picNo='" + picNo + "' ";
                 conn = new MySqlConnection(connstr);
                 cmd = new MySqlCommand(sql, conn);
@@ -283,7 +285,7 @@ namespace OpticalFiber
             Struct_AlarmMsg alarmMsg;
             try
             {
-                string connstr = "data source =localhost;database=SM2003;user id=root;password=adsensor;pooling=false;charset=utf8";
+                string connstr = $"data source =localhost;database=SM2003;user id={userName};password={password};pooling=false;charset=utf8";
                 string sql = "select   *  from alarm order by datetime desc limit 0,1000 ";
                 switch (type)
                 {
@@ -342,7 +344,7 @@ namespace OpticalFiber
             OperationRecord operationRecord;
             try
             {
-                string connstr = "data source =localhost;database=SM2003;user id=root;password=adsensor;pooling=false;charset=utf8";
+                string connstr = $"data source =localhost;database=SM2003;user id={userName};password={password};pooling=false;charset=utf8";
                 string sql = "select *  from audit  where datetime between '" + start + "' and '" + end + "' order by datetime ";
                 conn = new MySqlConnection(connstr);
                 cmd = new MySqlCommand(sql, conn);

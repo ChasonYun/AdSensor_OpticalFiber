@@ -17,10 +17,10 @@ namespace OpticalFiber
     {
         SQL_Select sql_Select = new SQL_Select();
         SQL_Insert sql_Insert = new SQL_Insert();
-        WorkTread_TCP workTread_TCP;
-        /// <summary>
-        /// 神奇的代码  无敌
-        /// </summary>
+        ModBusService modBusService;
+        int tempDingWenCount;
+        int tempChaWenCount;
+        int tempWenShengCount;
         protected override CreateParams CreateParams
         {
             get
@@ -42,7 +42,7 @@ namespace OpticalFiber
                 timerVoice.Start();
                 DataClass.projName = sql_Select.Select_PrjName(1);
 
-                workTread_TCP = new WorkTread_TCP(1);
+                modBusService = ModBusService.Instance();
                 InitTreeView();
                 InitRunStatus();
 
@@ -52,7 +52,7 @@ namespace OpticalFiber
             {
                 DataClass.ShowErrMsg("frmmain初始化失败！——" + ex.Message);
             }
-           
+
         }
 
         private void InitTreeView()
@@ -69,7 +69,7 @@ namespace OpticalFiber
             {
                 DataClass.ShowErrMsg("设备列表初始化失败！——" + ex.Message);
             }
-           
+
         }
 
         private void InitRunStatus()
@@ -78,7 +78,7 @@ namespace OpticalFiber
             {
                 tlpRunStatus.Controls.Clear();
                 UCRunStatus ucRunStatus;
-                for (int i = 1; i <= 8; i++)
+                for (int i = 0; i < 8; i++)
                 {
                     ucRunStatus = new UCRunStatus(i);
                     ucRunStatus.Dock = DockStyle.Fill;
@@ -106,7 +106,7 @@ namespace OpticalFiber
                     pbxRunStatus.BackgroundImage = Properties.Resources.runStatus_Run;
                 }
 
-                if (list_AlarmCons.Count > 0 || list_AlarmRise.Count > 0)
+                if (list_AlarmCons.Count > 0 || list_AlarmRise.Count > 0 || list_AlarmChaWen.Count > 0)
                 {
                     pbxFireAlarm.BackgroundImage = Properties.Resources.status_FireAlarm;
                 }
@@ -195,26 +195,41 @@ namespace OpticalFiber
 
         Struct_AlarmMsg compareAlarmMsg;
 
+        /// <summary>
+        /// 断纤故障
+        /// </summary>
         Dictionary<int, Struct_AlarmMsg> dicBroken = new Dictionary<int, Struct_AlarmMsg>();
+        /// <summary>
+        /// 定温报警
+        /// </summary>
         Dictionary<int, Struct_AlarmMsg> dicCons = new Dictionary<int, Struct_AlarmMsg>();
+        /// <summary>
+        /// 温升报警
+        /// </summary>
         Dictionary<int, Struct_AlarmMsg> dicRise = new Dictionary<int, Struct_AlarmMsg>();
+        /// <summary>
+        /// 差温报警
+        /// </summary>
+        Dictionary<int, Struct_AlarmMsg> dicChaWen = new Dictionary<int, Struct_AlarmMsg>();
 
 
-        List<Struct_AlarmMsg> list_AlarmCons = new List<Struct_AlarmMsg>();//一级定温报警
-        List<Struct_AlarmMsg> list_AlarmRise = new List<Struct_AlarmMsg>();//差温报警
+        List<Struct_AlarmMsg> list_AlarmCons = new List<Struct_AlarmMsg>();//定温报警
+        List<Struct_AlarmMsg> list_AlarmChaWen = new List<Struct_AlarmMsg>();//差温报警
+        List<Struct_AlarmMsg> list_AlarmRise = new List<Struct_AlarmMsg>();//温升
         List<Struct_AlarmMsg> list_BrokenMsg = new List<Struct_AlarmMsg>();//断纤故障
         List<Struct_AlarmMsg> list_CommFault = new List<Struct_AlarmMsg>();//通讯故障
-        private bool[] commFault = new bool[9];
+        private bool[] commFault = new bool[8];
         private void timerAlarm_Tick(object sender, EventArgs e)
         {
             try
             {
-                //遍历所有分区  寻找报警信息
-                for (int i = 1; i <= 8; i++)
+                DataClass.list_DeviceEnables = (new SQL_Select()).Select_DeviceEnable();
+                for (int i = 0; i < 8; i++)
                 {
-                    if (commFault[i])//有故障
+                    if (DataClass.list_DeviceEnables[i].enable)
                     {
-                        if (!DataClass.list_TcpCommFault[i])//恢复
+                        #region//通讯故障
+                        if (commFault[i] && ModBusService.Instance().dtsModBuses[i].dtsDeviceDataModel.Device_FaultInfo.IsNetCommunFault <= 0)//有故障
                         {
                             InitTreeView();
                             commFault[i] = false;
@@ -240,169 +255,214 @@ namespace OpticalFiber
                             UpdateDgvMsg();
                             sql_Insert.Insert_Alarm(temp_CommFault);
                         }
-                    }
-                    else
-                    {
-                        if (DataClass.list_TcpCommFault[i])
+                        else
                         {
-                            InitTreeView();
-                            temp_CommFault = new Struct_AlarmMsg();
-                            temp_CommFault.DateTime = DateTime.Now;
-                            temp_CommFault.DeviceNo = i;
-                            temp_CommFault.ChannelNo = 0;
-                            temp_CommFault.PartitionNo = 0;
-                            temp_CommFault.Position = 0;
-                            foreach(struct_DeviceEnable _DeviceEnable in DataClass.list_DeviceEnables)
+                            if (ModBusService.Instance().dtsModBuses[i].dtsDeviceDataModel.Device_FaultInfo.IsNetCommunFault > 0 && !commFault[i])
                             {
-                                if (_DeviceEnable.deviceNo == i)
+                                InitTreeView();
+                                temp_CommFault = new Struct_AlarmMsg();
+                                temp_CommFault.DateTime = DateTime.Now;
+                                temp_CommFault.DeviceNo = i;
+                                temp_CommFault.ChannelNo = 0;
+                                temp_CommFault.PartitionNo = 0;
+                                temp_CommFault.Position = 0;
+                                foreach (struct_DeviceEnable _DeviceEnable in DataClass.list_DeviceEnables)
                                 {
-                                    temp_CommFault.Illustrate = _DeviceEnable.name;
+                                    if (_DeviceEnable.deviceNo == i)
+                                    {
+                                        temp_CommFault.Illustrate = _DeviceEnable.name;
+                                    }
                                 }
-                            }
-                            //temp_CommFault.Illustrate = "设备" + i;
-                            temp_CommFault.Relay = 0;
-                            temp_CommFault.Type = "通讯故障";
-                            temp_CommFault.AlarmValue = 0;
-                            temp_CommFault.Threshold = 0;
-                            list_CommFault.Add(temp_CommFault);
-                            Ismute = false;
-                            UpdateDgvMsg();
-                            sql_Insert.Insert_Alarm(temp_CommFault);
-                        }
-                    }
-                    if (DataClass.list_TcpCommFault[i])
-                    {
-                        commFault[i] = true;
-                    }
-                   
-                    for (int j = 1; j <= 4; j++)
-                    {
-                        if (AlarmStatus.isBroken.deviceIsBrokens[i].channelIsBrokens[j].isbroken)
-                        {
-                            temp_TempBroken = new Struct_AlarmMsg();
-                            temp_TempBroken.DateTime = AlarmStatus.isBroken.deviceIsBrokens[i].channelIsBrokens[j].brokenTime;
-                            temp_TempBroken.DeviceNo = i;
-                            temp_TempBroken.ChannelNo = j;
-                            temp_TempBroken.PartitionNo = 0;
-                            temp_TempBroken.Position = AlarmStatus.isBroken.deviceIsBrokens[i].channelIsBrokens[j].brokenposition;
-                            temp_TempBroken.Illustrate = "通道" + j;
-                            temp_TempBroken.Relay = 0;
-                            temp_TempBroken.Type = "断纤故障";
-                            temp_TempBroken.AlarmValue = 0;
-                            temp_TempBroken.Threshold = AlarmStatus.isBroken.deviceIsBrokens[i].channelIsBrokens[j].threshold;
-                            if (!dicBroken.ContainsKey((i - 1) * 8 + j))
-                            {
+                                //temp_CommFault.Illustrate = "设备" + i;
+                                temp_CommFault.Relay = 0;
+                                temp_CommFault.Type = "通讯故障";
+                                temp_CommFault.AlarmValue = 0;
+                                temp_CommFault.Threshold = 0;
+                                list_CommFault.Add(temp_CommFault);
                                 Ismute = false;
-                                list_BrokenMsg.Add(temp_TempBroken);
                                 UpdateDgvMsg();
-                                dicBroken.Add((i - 1) * 8 + j, temp_TempBroken);
-                                sql_Insert.Insert_Alarm(temp_TempBroken);
+                                sql_Insert.Insert_Alarm(temp_CommFault);
                             }
-                            else
+                        }
+                        if (ModBusService.Instance().dtsModBuses[i].dtsDeviceDataModel.Device_FaultInfo.IsNetCommunFault > 0)
+                        {
+                            commFault[i] = true;
+                        }
+                        #endregion
+
+                        #region//断纤故障
+                        for (int j = 0; j < 8; j++)
+                        {
+                            if (ModBusService.Instance().dtsModBuses[i].dtsDeviceDataModel.DtsChannelDataModels[j].Channel_BaseInfo.IsBrokenAlarm > 0)
                             {
-                                dicBroken.TryGetValue((i - 1) * 8 + j, out compareAlarmMsg);
-                                if(compareAlarmMsg!= temp_TempBroken)
+                                temp_TempBroken = new Struct_AlarmMsg();
+                                temp_TempBroken.DateTime = ModBusService.Instance().dtsModBuses[i].dtsDeviceDataModel.DtsChannelDataModels[j].Channel_BrokenInfo.AlarmTime;
+                                temp_TempBroken.DeviceNo = i;
+                                temp_TempBroken.ChannelNo = j;
+                                temp_TempBroken.PartitionNo = 0;
+                                temp_TempBroken.Position = ModBusService.Instance().dtsModBuses[i].dtsDeviceDataModel.DtsChannelDataModels[j].Channel_BrokenInfo.BrokenPos;
+                                temp_TempBroken.Illustrate = "通道" + j + 1;
+                                temp_TempBroken.Relay = 0;
+                                temp_TempBroken.Type = "断纤故障";
+                                temp_TempBroken.AlarmValue = 0;
+                                //temp_TempBroken.Threshold = AlarmStatus.isBroken.deviceIsBrokens[i].channelIsBrokens[j].threshold;
+                                if (!dicBroken.ContainsKey((i - 1) * 8 + j))
                                 {
-                                    dicBroken.Remove((i - 1) * 8 + j);
                                     Ismute = false;
                                     list_BrokenMsg.Add(temp_TempBroken);
                                     UpdateDgvMsg();
                                     dicBroken.Add((i - 1) * 8 + j, temp_TempBroken);
                                     sql_Insert.Insert_Alarm(temp_TempBroken);
                                 }
+                                else
+                                {
+                                    dicBroken.TryGetValue((i - 1) * 8 + j, out compareAlarmMsg);
+                                    if (compareAlarmMsg != temp_TempBroken)
+                                    {
+                                        dicBroken.Remove((i - 1) * 8 + j);
+                                        Ismute = false;
+                                        list_BrokenMsg.Add(temp_TempBroken);
+                                        UpdateDgvMsg();
+                                        dicBroken.Add((i - 1) * 8 + j, temp_TempBroken);
+                                        sql_Insert.Insert_Alarm(temp_TempBroken);
+                                    }
+                                }
                             }
-                        }
-                        for (int k = 1; k <= 50; k++)
-                        {
-                            if (AlarmStatus.isAlarm.deviceAlarms[i].channelAlarms[j].partitionAlarms[k].isFireAlarm)//有火警
+
+                            for (int k = 0; k < ModBusService.Instance().dtsModBuses[i].dtsDeviceDataModel.DtsChannelDataModels[j].Channel_BaseInfo.DingWenAlarmCount; k++)//定温报警
+                            {
+                                {
+                                    temp_TempCons = new Struct_AlarmMsg();
+                                    temp_TempCons.DateTime = ModBusService.Instance().dtsModBuses[i].dtsDeviceDataModel.DtsChannelDataModels[j].Channel_DingWenAlarmInfos[k].AlarmTime;
+                                    temp_TempCons.DeviceNo = i;
+                                    temp_TempCons.ChannelNo = j;
+                                    temp_TempCons.PartitionNo = ModBusService.Instance().dtsModBuses[i].dtsDeviceDataModel.DtsChannelDataModels[j].Channel_DingWenAlarmInfos[k].PartId;
+                                    temp_TempCons.Position = ModBusService.Instance().dtsModBuses[i].dtsDeviceDataModel.DtsChannelDataModels[j].Channel_DingWenAlarmInfos[k].StartPos;
+                                    foreach (struct_PrtName prtName in DataClass.list_PrtName)
+                                    {
+                                        if (prtName.deviceNo == i && prtName.channelNo == j && prtName.prtNo == k)
+                                        {
+                                            temp_TempCons.Illustrate = prtName.prtName;
+                                        }
+                                    }
+                                    temp_TempCons.Relay = 0;
+                                    temp_TempCons.Type = "定温报警";
+                                    temp_TempCons.AlarmValue = 0;
+                                    temp_TempCons.Threshold = 0;
+                                    if (!dicCons.ContainsKey((i - 1) * 8 + (j - 1) * 8 + temp_TempCons.PartitionNo))
+                                    {
+                                        Ismute = false;
+                                        list_AlarmCons.Add(temp_TempCons);
+                                        dicCons.Add((i - 1) * 8 + (j - 1) * 8 + temp_TempCons.PartitionNo, temp_TempCons);
+                                        UpdateDgvMsg();
+                                        sql_Insert.Insert_Alarm(temp_TempCons);
+                                    }
+                                    else
+                                    {
+                                        dicCons.TryGetValue((i - 1) * 8 + (j - 1) * 8 + temp_TempCons.PartitionNo, out compareAlarmMsg);
+                                        if (compareAlarmMsg != temp_TempCons)
+                                        {
+                                            dicCons.Remove((i - 1) * 8 + (j - 1) * 8 + temp_TempCons.PartitionNo);
+                                            Ismute = false;
+                                            list_AlarmCons.Add(temp_TempCons);
+                                            UpdateDgvMsg();
+                                            dicCons.Add((i - 1) * 8 + (j - 1) * 50 + k, temp_TempCons);
+                                            sql_Insert.Insert_Alarm(temp_TempCons);
+                                        }
+                                    }
+                                }
+                            }
+                            for (int k = 0; k < ModBusService.Instance().dtsModBuses[i].dtsDeviceDataModel.DtsChannelDataModels[j].Channel_BaseInfo.ChaWenAlarmCount; k++)//差温火警
                             {
                                 temp_TempCons = new Struct_AlarmMsg();
-                                temp_TempCons.DateTime = AlarmStatus.isAlarm.deviceAlarms[i].channelAlarms[j].partitionAlarms[k].fireAlarmTime;
+                                temp_TempCons.DateTime = ModBusService.Instance().dtsModBuses[i].dtsDeviceDataModel.DtsChannelDataModels[j].Channel_ChaWenAlarmInfos[k].AlarmTime;
                                 temp_TempCons.DeviceNo = i;
                                 temp_TempCons.ChannelNo = j;
-                                temp_TempCons.PartitionNo = k;
-                                temp_TempCons.Position = AlarmStatus.isAlarm.deviceAlarms[i].channelAlarms[j].partitionAlarms[k].fireAlarmPosition;
-                                foreach(struct_PrtName prtName in DataClass.list_PrtName)
+                                temp_TempCons.PartitionNo = ModBusService.Instance().dtsModBuses[i].dtsDeviceDataModel.DtsChannelDataModels[j].Channel_ChaWenAlarmInfos[k].PartId;
+                                temp_TempCons.Position = ModBusService.Instance().dtsModBuses[i].dtsDeviceDataModel.DtsChannelDataModels[j].Channel_ChaWenAlarmInfos[k].StartPos;
+                                foreach (struct_PrtName prtName in DataClass.list_PrtName)
                                 {
                                     if (prtName.deviceNo == i && prtName.channelNo == j && prtName.prtNo == k)
                                     {
                                         temp_TempCons.Illustrate = prtName.prtName;
                                     }
                                 }
-                                temp_TempCons.Relay = AlarmStatus.isAlarm.deviceAlarms[i].channelAlarms[j].partitionAlarms[k].relayNo;
-                                temp_TempCons.Type = "一级定温报警";
-                                temp_TempCons.AlarmValue = ((double)AlarmStatus.isAlarm.deviceAlarms[i].channelAlarms[j].partitionAlarms[k].maxRealValue) / 10;
-                                temp_TempCons.Threshold = ((double)AlarmStatus.isAlarm.deviceAlarms[i].channelAlarms[j].partitionAlarms[k].realThreshold) / 10;
-                                if (!dicCons.ContainsKey((i - 1) * 200 + (j - 1) * 50 + k))
+                                temp_TempCons.Relay = 0;
+                                temp_TempCons.Type = "差温报警";
+                                temp_TempCons.AlarmValue = 0;
+                                temp_TempCons.Threshold = 0;
+                                if (!dicChaWen.ContainsKey((i - 1) * 8 + (j - 1) * 8 + temp_TempCons.PartitionNo))
                                 {
                                     Ismute = false;
-                                    list_AlarmCons.Add(temp_TempCons);
-                                    dicCons.Add((i - 1) * 200 + (j - 1) * 50 + k, temp_TempCons);
-                                    UpdateDgvMsg();
-                                    sql_Insert.Insert_Alarm(temp_TempCons);
-                                }
-                                else
-                                {
-                                    dicCons.TryGetValue((i - 1) * 200 + (j - 1) * 50 + k, out compareAlarmMsg);
-                                    if (compareAlarmMsg != temp_TempCons)
-                                    {
-                                        dicCons.Remove((i - 1) * 200 + (j - 1) * 50 + k);
-                                        Ismute = false;
-                                        list_AlarmCons.Add(temp_TempCons);
-                                        UpdateDgvMsg();
-                                        dicCons.Add((i - 1) * 200 + (j - 1) * 50 + k, temp_TempCons);
-                                        sql_Insert.Insert_Alarm(temp_TempCons);
-                                    }
-                                }
-                            }
-                            if (AlarmStatus.isAlarm.deviceAlarms[i].channelAlarms[j].partitionAlarms[k].isRiseAlarm)//有火警
-                            {
-                                temp_TempRise = new Struct_AlarmMsg();
-                                temp_TempRise.DateTime = AlarmStatus.isAlarm.deviceAlarms[i].channelAlarms[j].partitionAlarms[k].riseAlarmTime;
-                                temp_TempRise.DeviceNo = i;
-                                temp_TempRise.ChannelNo = j;
-                                temp_TempRise.PartitionNo = k;
-                                temp_TempRise.Position = AlarmStatus.isAlarm.deviceAlarms[i].channelAlarms[j].partitionAlarms[k].riseAlarnPosition;
-                                foreach (struct_PrtName prtName in DataClass.list_PrtName)
-                                {
-                                    if (prtName.deviceNo == i && prtName.channelNo == j && prtName.prtNo == k)
-                                    {
-                                        temp_TempRise.Illustrate = prtName.prtName;
-                                    }
-                                }
-                                temp_TempRise.Relay = AlarmStatus.isAlarm.deviceAlarms[i].channelAlarms[j].partitionAlarms[k].relayNo;
-                                temp_TempRise.Type = "差温报警";
-                                temp_TempRise.AlarmValue = ((double)AlarmStatus.isAlarm.deviceAlarms[i].channelAlarms[j].partitionAlarms[k].maxRiseValue) / 10;
-                                temp_TempRise.Threshold = ((double)AlarmStatus.isAlarm.deviceAlarms[i].channelAlarms[j].partitionAlarms[k].riseThreshold) / 10;
-                                if (!dicRise.ContainsKey((i - 1) * 200 + (j - 1) * 50 + k))
-                                {
-                                    Ismute = false;
-                                    list_AlarmRise.Add(temp_TempRise);
-                                    dicRise.Add((i - 1) * 200 + (j - 1) * 50 + k, temp_TempRise);
+                                    list_AlarmChaWen.Add(temp_TempRise);
+                                    dicChaWen.Add((i - 1) * 8 + (j - 1) * 8 + temp_TempCons.PartitionNo, temp_TempRise);
                                     UpdateDgvMsg();
                                     sql_Insert.Insert_Alarm(temp_TempRise);
                                 }
                                 else
                                 {
-                                    dicRise.TryGetValue((i - 1) * 200 + (j - 1) * 50 + k, out compareAlarmMsg);
+                                    dicChaWen.TryGetValue((i - 1) * 8 + (j - 1) * 8 + temp_TempCons.PartitionNo, out compareAlarmMsg);
                                     if (compareAlarmMsg != temp_TempRise)
                                     {
-                                        dicRise.Remove((i - 1) * 200 + (j - 1) * 50 + k);
+                                        dicChaWen.Remove((i - 1) * 8 + (j - 1) * 8 + temp_TempCons.PartitionNo);
                                         Ismute = false;
-                                        list_AlarmRise.Add(temp_TempRise);
+                                        list_AlarmChaWen.Add(temp_TempRise);
                                         UpdateDgvMsg();
-                                        dicRise.Add((i - 1) * 200 + (j - 1) * 50 + k, temp_TempRise);
+                                        dicChaWen.Add((i - 1) * 8 + (j - 1) * 8 + temp_TempCons.PartitionNo, temp_TempRise);
                                         sql_Insert.Insert_Alarm(temp_TempRise);
                                     }
                                 }
                             }
+                            for (int k = 0; k < ModBusService.Instance().dtsModBuses[i].dtsDeviceDataModel.DtsChannelDataModels[j].Channel_BaseInfo.WenShengAlarmCount; k++)//温升火警
+                            {
+                                temp_TempCons = new Struct_AlarmMsg();
+                                temp_TempCons.DateTime = ModBusService.Instance().dtsModBuses[i].dtsDeviceDataModel.DtsChannelDataModels[j].Channel_WenShengAlarmInfos[k].AlarmTime;
+                                temp_TempCons.DeviceNo = i;
+                                temp_TempCons.ChannelNo = j;
+                                temp_TempCons.PartitionNo = ModBusService.Instance().dtsModBuses[i].dtsDeviceDataModel.DtsChannelDataModels[j].Channel_WenShengAlarmInfos[k].PartId;
+                                temp_TempCons.Position = ModBusService.Instance().dtsModBuses[i].dtsDeviceDataModel.DtsChannelDataModels[j].Channel_WenShengAlarmInfos[k].StartPos;
+                                foreach (struct_PrtName prtName in DataClass.list_PrtName)
+                                {
+                                    if (prtName.deviceNo == i && prtName.channelNo == j && prtName.prtNo == k)
+                                    {
+                                        temp_TempCons.Illustrate = prtName.prtName;
+                                    }
+                                }
+                                temp_TempCons.Relay = 0;
+                                temp_TempCons.Type = "温升报警";
+                                temp_TempCons.AlarmValue = 0;
+                                temp_TempCons.Threshold = 0;
+                                if (!dicRise.ContainsKey((i - 1) * 8 + (j - 1) * 8 + temp_TempCons.PartitionNo))
+                                {
+                                    Ismute = false;
+                                    list_AlarmRise.Add(temp_TempRise);
+                                    dicRise.Add((i - 1) * 8 + (j - 1) * 8 + temp_TempCons.PartitionNo, temp_TempRise);
+                                    UpdateDgvMsg();
+                                    sql_Insert.Insert_Alarm(temp_TempRise);
+                                }
+                                else
+                                {
+                                    dicRise.TryGetValue((i - 1) * 8 + (j - 1) * 8 + temp_TempCons.PartitionNo, out compareAlarmMsg);
+                                    if (compareAlarmMsg != temp_TempRise)
+                                    {
+                                        dicRise.Remove((i - 1) * 8 + (j - 1) * 8 + temp_TempCons.PartitionNo);
+                                        Ismute = false;
+                                        list_AlarmRise.Add(temp_TempRise);
+                                        UpdateDgvMsg();
+                                        dicRise.Add((i - 1) * 8 + (j - 1) * 8 + temp_TempCons.PartitionNo, temp_TempRise);
+                                        sql_Insert.Insert_Alarm(temp_TempRise);
+                                    }
+                                }
+                            }
+
                         }
+                        #endregion
                     }
                 }
             }
             catch (Exception ex)
             {
-                DataClass.ShowErrMsg("报警时事件间错误！——" + ex.Message +ex.StackTrace);
+                DataClass.ShowErrMsg("报警时事件间错误！——" + ex.Message + ex.StackTrace);
             }
         }
 
@@ -415,12 +475,10 @@ namespace OpticalFiber
             //pnlMain.Controls.Add(uCDeviceManagement);
             try
             {
-                if (workTread_TCP != null)
+                if (DataClass.IsRunning)
                 {
-                    DataClass.IsRunning = false;
-                    DataClass.cancellationTokenSource.Cancel();
+                    modBusService.StopMonitor();
                     Thread.Sleep(500);
-                    workTread_TCP = null;
                     timerAlarm.Stop();
                 }
 
@@ -442,10 +500,10 @@ namespace OpticalFiber
 
         private void LoadMainPage()
         {
-            if (workTread_TCP == null)
+            if (!DataClass.IsRunning)
             {
-                DataClass.cancellationTokenSource = new CancellationTokenSource();
-                workTread_TCP = new WorkTread_TCP(1);
+                modBusService = ModBusService.Instance();
+                modBusService.StartMonitor();
                 DataClass.list_PrtName = sql_Select.Select_PrtName();
                 timerAlarm.Start();
                 Thread.Sleep(500);
@@ -460,10 +518,10 @@ namespace OpticalFiber
 
         private void btnSpline_Click(object sender, EventArgs e)
         {
-            if (workTread_TCP == null)
+            if (!DataClass.IsRunning)
             {
-                DataClass.cancellationTokenSource = new CancellationTokenSource();
-                workTread_TCP = new WorkTread_TCP(1);
+                modBusService = ModBusService.Instance();
+                modBusService.StartMonitor();
                 DataClass.list_PrtName = sql_Select.Select_PrtName();
                 timerAlarm.Start();
                 Thread.Sleep(500);
@@ -482,10 +540,10 @@ namespace OpticalFiber
 
         private void ShowLines(struct_TvwMsg struct_tvwMsg)
         {
-            if (workTread_TCP == null)
+            if (!DataClass.IsRunning)
             {
-                DataClass.cancellationTokenSource = new CancellationTokenSource();
-                workTread_TCP = new WorkTread_TCP(1);
+                modBusService = ModBusService.Instance();
+                modBusService.StartMonitor();
                 DataClass.list_PrtName = sql_Select.Select_PrtName();
                 timerAlarm.Start();
                 Thread.Sleep(500);
@@ -542,13 +600,13 @@ namespace OpticalFiber
                         Reset();
                     }
                 }
-              
+
             }
             catch (Exception ex)
             {
                 DataClass.ShowErrMsg(ex.Message);
             }
-           
+
         }
 
         //FrmReset frmReset;
@@ -565,6 +623,7 @@ namespace OpticalFiber
                 Array.Clear(DataClass.list_TcpCommFault, 0, DataClass.list_TcpCommFault.Length);
                 list_AlarmRise.Clear();
                 list_AlarmCons.Clear();
+                list_AlarmChaWen.Clear();
                 list_CommFault.Clear();
                 list_BrokenMsg.Clear();
                 AlarmStatus.Reset();
@@ -572,23 +631,19 @@ namespace OpticalFiber
                 dicBroken.Clear();
                 dicCons.Clear();
                 dicRise.Clear();
+                dicChaWen.Clear();
 
-                if (workTread_TCP != null)
+                if (DataClass.IsRunning)
                 {
-                    DataClass.IsRunning = false;
-                    DataClass.cancellationTokenSource.Cancel();
+                    modBusService.StopMonitor();
                     Thread.Sleep(500);
-                    workTread_TCP = null;
+
                 }
                 Thread.Sleep(500);
-                if (workTread_TCP == null)
-                {
-                    DataClass.cancellationTokenSource = new CancellationTokenSource();
-                    workTread_TCP = new WorkTread_TCP(1);
-                    DataClass.list_PrtName = sql_Select.Select_PrtName();
-                    Thread.Sleep(500);
-                    InitTreeView();
-                }
+
+                modBusService.StartMonitor();
+                DataClass.list_PrtName = sql_Select.Select_PrtName();
+                Thread.Sleep(500);
                 InitTreeView();
                 dgvAlarmMsg.Rows.Clear();
                 Thread.Sleep(500);
@@ -603,11 +658,11 @@ namespace OpticalFiber
             }
             finally
             {
-                
+
             }
         }
-        
-      
+
+
         private void UpdateDgvMsg()
         {
             try
@@ -615,15 +670,19 @@ namespace OpticalFiber
                 int i = 1;
                 List<Struct_AlarmMsg> allMsg = new List<Struct_AlarmMsg>();
                 dgvAlarmMsg.Rows.Clear();
-                foreach(Struct_AlarmMsg AlarmMsg in list_BrokenMsg)
+                foreach (Struct_AlarmMsg AlarmMsg in list_BrokenMsg)
                 {
                     allMsg.Add(AlarmMsg);
                 }
-                foreach(Struct_AlarmMsg AlarmMsg in list_AlarmRise)
+                foreach (Struct_AlarmMsg AlarmMsg in list_AlarmRise)
                 {
                     allMsg.Add(AlarmMsg);
                 }
                 foreach (Struct_AlarmMsg AlarmMsg in list_AlarmCons)
+                {
+                    allMsg.Add(AlarmMsg);
+                }
+                foreach (Struct_AlarmMsg AlarmMsg in list_CommFault)
                 {
                     allMsg.Add(AlarmMsg);
                 }
@@ -636,7 +695,7 @@ namespace OpticalFiber
                 {
                     AddRows(i++, AlarmMsg);
                 }
-                for(int j = 0; j < dgvAlarmMsg.Rows.Count; j++)
+                for (int j = 0; j < dgvAlarmMsg.Rows.Count; j++)
                 {
                     if (dgvAlarmMsg.Rows[j].Cells[8].Value.ToString() == "通讯故障")
                     {
@@ -650,13 +709,19 @@ namespace OpticalFiber
                         dgvAlarmMsg.Rows[j].Cells[9].Style.BackColor = Color.Green;
                         dgvAlarmMsg.Rows[j].Cells[10].Style.BackColor = Color.Green;
                     }
-                    if (dgvAlarmMsg.Rows[j].Cells[8].Value.ToString() == "一级定温报警")
+                    if (dgvAlarmMsg.Rows[j].Cells[8].Value.ToString() == "定温报警")
                     {
                         dgvAlarmMsg.Rows[j].Cells[8].Style.BackColor = Color.Red;
                         dgvAlarmMsg.Rows[j].Cells[9].Style.BackColor = Color.Red;
                         dgvAlarmMsg.Rows[j].Cells[10].Style.BackColor = Color.Red;
                     }
                     if (dgvAlarmMsg.Rows[j].Cells[8].Value.ToString() == "差温报警")
+                    {
+                        dgvAlarmMsg.Rows[j].Cells[8].Style.BackColor = Color.Red;
+                        dgvAlarmMsg.Rows[j].Cells[9].Style.BackColor = Color.Red;
+                        dgvAlarmMsg.Rows[j].Cells[10].Style.BackColor = Color.Red;
+                    }
+                    if (dgvAlarmMsg.Rows[j].Cells[8].Value.ToString() == "温升报警")
                     {
                         dgvAlarmMsg.Rows[j].Cells[8].Style.BackColor = Color.Red;
                         dgvAlarmMsg.Rows[j].Cells[9].Style.BackColor = Color.Red;
@@ -684,7 +749,7 @@ namespace OpticalFiber
         private void 报警查询ToolStripMenuItem_Click(object sender, EventArgs e)
         {
             pnlMain.Controls.Clear();
-            UCAlarmData ucAlarmData  = new UCAlarmData();
+            UCAlarmData ucAlarmData = new UCAlarmData();
             ucAlarmData.Dock = DockStyle.Fill;
             pnlMain.Controls.Add(ucAlarmData);
         }

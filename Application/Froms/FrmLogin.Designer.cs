@@ -109,6 +109,7 @@
             this.tbxPwd.ShortcutsEnabled = false;
             this.tbxPwd.Size = new System.Drawing.Size(120, 26);
             this.tbxPwd.TabIndex = 4;
+            this.tbxPwd.Text = "adminSM2003";
             this.tbxPwd.TextAlign = System.Windows.Forms.HorizontalAlignment.Center;
             // 
             // pbxUser

@@ -165,7 +165,11 @@
             "1",
             "2",
             "3",
-            "4"});
+            "4",
+            "5",
+            "6",
+            "7",
+            "8"});
             this.cbxChannelNo.Location = new System.Drawing.Point(134, 92);
             this.cbxChannelNo.Name = "cbxChannelNo";
             this.cbxChannelNo.Size = new System.Drawing.Size(99, 24);

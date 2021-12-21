@@ -1,4 +1,5 @@
 ﻿using ModBus.ModBus;
+using ModBus.Model;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -14,13 +15,32 @@ namespace ModBus
         int port;
         IModBus modeBusClient;
 
-       const int CHANNELCOUNT = 8;
+
+        int channelCount = 8;//通道数量
+
+        public DtsDeviceDataModel dtsDeviceDataModel;
+
+        string response;
+
+        int[] channelSettingInfo = new int[3];
+        int[] deviceFaultInfo = new int[4];
+        int[] channelBaseInfo = new int[6];
+        int[] channelCollectionInfo = new int[5];
+        int[] channelBrokenInfo = new int[4];
+        int[] partSettingInfo = new int[5];
+        int[] partTempInfo = new int[6];
+        int[] dingWenAlarm = new int[6];
+        int[] chaWenAlarm = new int[6];
+        int[] wenShengAlarm = new int[6];
+        int[] channelTemps = new int[44536];
+        Action<string, string> EvAlarm;
 
         public DtsModBus(string ip, int port)
         {
             this.ip = ip;
             this.port = port;
             modeBusClient = new ModBusTcp(ip, port);
+            dtsDeviceDataModel = new DtsDeviceDataModel();
         }
 
         private void Connect()
@@ -33,6 +53,7 @@ namespace ModBus
             catch (Exception ex)
             {
                 response = ex.Message;
+                EvAlarm?.Invoke(ip, response);
             }
         }
 
@@ -95,19 +116,347 @@ namespace ModBus
         }
         #endregion
 
+        #region//读
+        /// <summary>
+        /// 通道配置信息
+        /// </summary>
+        private void PraseChannelSettingInfo()
+        {
+            try
+            {
+                if (modeBusClient.ReadHoldingRegisters(51, 3, out channelSettingInfo, out response))
+                {
+                    dtsDeviceDataModel.ChannelSettingInfo.Time = channelSettingInfo[0];
+                    dtsDeviceDataModel.ChannelSettingInfo.TempInterval = channelSettingInfo[1];
+                    dtsDeviceDataModel.ChannelSettingInfo.Accuracy = channelSettingInfo[2];
+                }
+            }
+            catch (Exception ex)
+            {
+                response = ex.Message;
+                EvAlarm?.Invoke(ip, response);
+            }
+        }
+
+        /// <summary>
+        /// 通道基本信息
+        /// </summary>
+        private void PraseChannelBaseInfo()
+        {
+            try
+            {
+                for (int i = 0; i < channelCount; i++)
+                {
+                    if (modeBusClient.ReadInputRegisters(10, 6, out channelBaseInfo, out response))
+                    {
+                        dtsDeviceDataModel.DtsChannelDataModels[i].Channel_BaseInfo.Id = channelBaseInfo[0];
+                        dtsDeviceDataModel.DtsChannelDataModels[i].Channel_BaseInfo.PartCount = channelBaseInfo[1];
+                        dtsDeviceDataModel.DtsChannelDataModels[i].Channel_BaseInfo.IsBrokenAlarm = channelBaseInfo[2];
+                        dtsDeviceDataModel.DtsChannelDataModels[i].Channel_BaseInfo.DingWenAlarmCount = channelBaseInfo[3];
+                        dtsDeviceDataModel.DtsChannelDataModels[i].Channel_BaseInfo.ChaWenAlarmCount = channelBaseInfo[4];
+                        dtsDeviceDataModel.DtsChannelDataModels[i].Channel_BaseInfo.WenShengAlarmCount = channelBaseInfo[5];
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                response = ex.Message;
+                EvAlarm?.Invoke(ip, response);
+            }
+        }
+
+        /// <summary>
+        /// 通道采集信息
+        /// </summary>
+        private void PraseChannelCollectionInfo()
+        {
+            try
+            {
+                for (int i = 0; i < channelCount; i++)
+                {
+                    if (modeBusClient.ReadInputRegisters(50, 5, out channelCollectionInfo, out response))
+                    {
+                        dtsDeviceDataModel.DtsChannelDataModels[i].Channel_BaseInfo.Id = channelCollectionInfo[0];
+                        dtsDeviceDataModel.DtsChannelDataModels[i].Channel_BaseInfo.PartCount = channelCollectionInfo[1];
+                        dtsDeviceDataModel.DtsChannelDataModels[i].Channel_BaseInfo.IsBrokenAlarm = channelCollectionInfo[2];
+                        dtsDeviceDataModel.DtsChannelDataModels[i].Channel_BaseInfo.DingWenAlarmCount = channelCollectionInfo[3];
+                        dtsDeviceDataModel.DtsChannelDataModels[i].Channel_BaseInfo.ChaWenAlarmCount = channelCollectionInfo[4];
+                        dtsDeviceDataModel.DtsChannelDataModels[i].Channel_BaseInfo.WenShengAlarmCount = channelCollectionInfo[5];
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                response = ex.Message;
+                EvAlarm?.Invoke(ip, response);
+            }
+        }
+
+        /// <summary>
+        /// 通道断纤信息
+        /// </summary>
+        private void PraseChannelBrokenInfo()
+        {
+            try
+            {
+                for (int i = 0; i < channelCount; i++)
+                {
+                    if (modeBusClient.ReadInputRegisters(100, 4, out channelBrokenInfo, out response))
+                    {
+                        dtsDeviceDataModel.DtsChannelDataModels[i].Channel_BrokenInfo.BrokenPos = channelBrokenInfo[0];
+                        dtsDeviceDataModel.DtsChannelDataModels[i].Channel_BrokenInfo.Broken_Year_Month = channelBrokenInfo[1];
+                        dtsDeviceDataModel.DtsChannelDataModels[i].Channel_BrokenInfo.Broken_Day_Hour = channelBrokenInfo[2];
+                        dtsDeviceDataModel.DtsChannelDataModels[i].Channel_BrokenInfo.Broken_Min_Sec = channelBrokenInfo[3];
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                response = ex.Message;
+                EvAlarm?.Invoke(ip, response);
+            }
+        }
+
+        /// <summary>
+        /// 设备故障信息
+        /// </summary>
+        private void PraseDeviceFaultInfo()
+        {
+            try
+            {
+                if (modeBusClient.ReadInputRegisters(200, 4, out deviceFaultInfo, out response))
+                {
+                    dtsDeviceDataModel.Device_FaultInfo.IsCommunctionFault = deviceFaultInfo[0];
+                    dtsDeviceDataModel.Device_FaultInfo.IsMainPowerFault = deviceFaultInfo[1];
+                    dtsDeviceDataModel.Device_FaultInfo.IsBackUpPowerFault = deviceFaultInfo[2];
+                    dtsDeviceDataModel.Device_FaultInfo.IsChargeFault = deviceFaultInfo[3];
+                    dtsDeviceDataModel.Device_FaultInfo.IsNetCommunFault = 0;
+                }
+                else
+                {
+                    dtsDeviceDataModel.Device_FaultInfo.IsNetCommunFault = 1;
+                }
+            }
+            catch (Exception ex)
+            {
+                response = ex.Message;
+                EvAlarm?.Invoke(ip, response);
+            }
+        }
+
+        /// <summary>
+        /// 分区配置信息
+        /// </summary>
+        private void PrasePartSettingInfo()
+        {
+            try
+            {
+                for (int i = 0; i < channelCount; i++)
+                {
+                    for (int j = 0; j < dtsDeviceDataModel.DtsChannelDataModels[i].Channel_BaseInfo.PartCount; j++)
+                    {
+                        if (modeBusClient.ReadHoldingRegisters(1000, 5, out partSettingInfo, out response))
+                        {
+                            dtsDeviceDataModel.DtsChannelDataModels[i].DtsPartDataModels[j].Part_SettingInfo.StartPos = partSettingInfo[0];
+                            dtsDeviceDataModel.DtsChannelDataModels[i].DtsPartDataModels[j].Part_SettingInfo.EndPos = partSettingInfo[1];
+                            dtsDeviceDataModel.DtsChannelDataModels[i].DtsPartDataModels[j].Part_SettingInfo.DingWen = partSettingInfo[2];
+                            dtsDeviceDataModel.DtsChannelDataModels[i].DtsPartDataModels[j].Part_SettingInfo.ChaWen = partSettingInfo[3];
+                            dtsDeviceDataModel.DtsChannelDataModels[i].DtsPartDataModels[j].Part_SettingInfo.WenSheng = partSettingInfo[4];
+                        }
+                    }
+
+                }
+            }
+            catch (Exception ex)
+            {
+                response = ex.Message;
+                EvAlarm?.Invoke(ip, response);
+            }
+        }
+
+        /// <summary>
+        /// 分区温度信息
+        /// </summary>
+        private void PrasePartTempInfo()
+        {
+            try
+            {
+                for (int i = 0; i < 8; i++)
+                {
+                    for (int j = 0; j < dtsDeviceDataModel.DtsChannelDataModels[i].Channel_BaseInfo.PartCount; j++)
+                    {
+                        if (modeBusClient.ReadInputRegisters(1000, 5, out partTempInfo, out response))
+                        {
+                            dtsDeviceDataModel.DtsChannelDataModels[i].DtsPartDataModels[j].Part_TempInfo.AlarmState = partTempInfo[0];
+                            dtsDeviceDataModel.DtsChannelDataModels[i].DtsPartDataModels[j].Part_TempInfo.MaxTemp = partTempInfo[1];
+                            dtsDeviceDataModel.DtsChannelDataModels[i].DtsPartDataModels[j].Part_TempInfo.AverageTemp = partTempInfo[2];
+                            dtsDeviceDataModel.DtsChannelDataModels[i].DtsPartDataModels[j].Part_TempInfo.MinTemp = partTempInfo[3];
+                            dtsDeviceDataModel.DtsChannelDataModels[i].DtsPartDataModels[j].Part_TempInfo.MaxTempPos = partTempInfo[4];
+                            dtsDeviceDataModel.DtsChannelDataModels[i].DtsPartDataModels[j].Part_TempInfo.MinTempPos = partTempInfo[5];
+                        }
+                    }
+
+                }
+            }
+            catch (Exception ex)
+            {
+                response = ex.Message;
+                EvAlarm?.Invoke(ip, response);
+            }
+        }
+        /// <summary>
+        /// 定温报警
+        /// </summary>
+        private void PraseChannelDingWenAlarmInfo()
+        {
+            try
+            {
+                for (int i = 0; i < 8; i++)
+                {
+                    for (int j = 0; j < dtsDeviceDataModel.DtsChannelDataModels[i].Channel_BaseInfo.DingWenAlarmCount; j++)
+                    {
+                        if (modeBusClient.ReadInputRegisters(10000 + j * 1000, 5, out dingWenAlarm, out response))
+                        {
+                            dtsDeviceDataModel.DtsChannelDataModels[i].Channel_DingWenAlarmInfos[j].StartPos = dingWenAlarm[0];
+                            dtsDeviceDataModel.DtsChannelDataModels[i].Channel_DingWenAlarmInfos[j].EndPos = dingWenAlarm[1];
+                            dtsDeviceDataModel.DtsChannelDataModels[i].Channel_DingWenAlarmInfos[j].Alarm_Year_Month = dingWenAlarm[2];
+                            dtsDeviceDataModel.DtsChannelDataModels[i].Channel_DingWenAlarmInfos[j].Alarm_Day_Hour = dingWenAlarm[3];
+                            dtsDeviceDataModel.DtsChannelDataModels[i].Channel_DingWenAlarmInfos[j].Alarm_Min_Sec = dingWenAlarm[4];
+                            dtsDeviceDataModel.DtsChannelDataModels[i].Channel_DingWenAlarmInfos[j].PartId = dingWenAlarm[5];
+                        }
+                    }
+
+                }
+            }
+            catch (Exception ex)
+            {
+                response = ex.Message;
+                EvAlarm?.Invoke(ip, response);
+            }
+        }
+
+        /// <summary>
+        /// 差温报警
+        /// </summary>
+        private void PraseChannelChaWenAlarmInfo()
+        {
+            try
+            {
+                for (int i = 0; i < 8; i++)
+                {
+                    for (int j = 0; j < dtsDeviceDataModel.DtsChannelDataModels[i].Channel_BaseInfo.ChaWenAlarmCount; j++)
+                    {
+                        if (modeBusClient.ReadInputRegisters(14000 + j * 1000, 5, out chaWenAlarm, out response))
+                        {
+                            dtsDeviceDataModel.DtsChannelDataModels[i].Channel_ChaWenAlarmInfos[j].StartPos = chaWenAlarm[0];
+                            dtsDeviceDataModel.DtsChannelDataModels[i].Channel_ChaWenAlarmInfos[j].EndPos = chaWenAlarm[1];
+                            dtsDeviceDataModel.DtsChannelDataModels[i].Channel_ChaWenAlarmInfos[j].Alarm_Year_Month = chaWenAlarm[2];
+                            dtsDeviceDataModel.DtsChannelDataModels[i].Channel_ChaWenAlarmInfos[j].Alarm_Day_Hour = chaWenAlarm[3];
+                            dtsDeviceDataModel.DtsChannelDataModels[i].Channel_ChaWenAlarmInfos[j].Alarm_Min_Sec = chaWenAlarm[4];
+                            dtsDeviceDataModel.DtsChannelDataModels[i].Channel_ChaWenAlarmInfos[j].PartId = chaWenAlarm[5];
+                        }
+                    }
+
+                }
+            }
+            catch (Exception ex)
+            {
+                response = ex.Message;
+                EvAlarm?.Invoke(ip, response);
+            }
+        }
+
+        /// <summary>
+        /// 温升报警
+        /// </summary>
+        private void PraseChannelWenShengAlarmInfo()
+        {
+            try
+            {
+                for (int i = 0; i < 8; i++)
+                {
+                    for (int j = 0; j < dtsDeviceDataModel.DtsChannelDataModels[i].Channel_BaseInfo.WenShengAlarmCount; j++)
+                    {
+                        if (modeBusClient.ReadInputRegisters(12000 + j * 1000, 5, out wenShengAlarm, out response))
+                        {
+                            dtsDeviceDataModel.DtsChannelDataModels[i].Channel_WenShengAlarmInfos[j].StartPos = wenShengAlarm[0];
+                            dtsDeviceDataModel.DtsChannelDataModels[i].Channel_WenShengAlarmInfos[j].EndPos = wenShengAlarm[1];
+                            dtsDeviceDataModel.DtsChannelDataModels[i].Channel_WenShengAlarmInfos[j].Alarm_Year_Month = wenShengAlarm[2];
+                            dtsDeviceDataModel.DtsChannelDataModels[i].Channel_WenShengAlarmInfos[j].Alarm_Day_Hour = wenShengAlarm[3];
+                            dtsDeviceDataModel.DtsChannelDataModels[i].Channel_WenShengAlarmInfos[j].Alarm_Min_Sec = wenShengAlarm[4];
+                            dtsDeviceDataModel.DtsChannelDataModels[i].Channel_WenShengAlarmInfos[j].PartId = wenShengAlarm[5];
+                        }
+                    }
+
+                }
+            }
+            catch (Exception ex)
+            {
+                response = ex.Message;
+                EvAlarm?.Invoke(ip, response);
+            }
+        }
+
+        private void PraseChannelTemp()
+        {
+            try
+            {
+                for (int i = 0; i < 8; i++)
+                {
+                    if (modeBusClient.ReadInputRegisters(20000, 44536, out channelTemps, out response))
+                    {
+                        for (int j = 0; j < dtsDeviceDataModel.DtsChannelDataModels[i].Channel_CollectionsInfo.TempPosCount; j++)
+                        {
+                            dtsDeviceDataModel.DtsChannelDataModels[i].Channel_Temps[j] = channelTemps[j];
+                        }
+
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                response = ex.Message;
+                EvAlarm?.Invoke(ip, response);
+            }
+        }
+        #endregion
+
+        public bool isStop;
         public void StartMonitor()
         {
             Task.Factory.StartNew(() =>
             {
                 Connect();
-                while (true)
+                while (!isStop)
                 {
-
-
+                    if (!modeBusClient.IsConnect)
+                    {
+                        Connect();
+                        Thread.Sleep(1000);
+                        continue;
+                    }
+                    PraseChannelSettingInfo();
+                    PraseChannelBaseInfo();
+                    PraseChannelCollectionInfo();
+                    PraseChannelBrokenInfo();
+                    PraseDeviceFaultInfo();
+                    PrasePartSettingInfo();
+                    PrasePartTempInfo();
+                    PraseChannelDingWenAlarmInfo();
+                    PraseChannelChaWenAlarmInfo();
+                    PraseChannelWenShengAlarmInfo();
+                    PraseChannelTemp();
                     Thread.Sleep(10);
                 }
 
             });
+            isStop = false;
+            modeBusClient.Close();
+        }
+
+        public void StopMonitor()
+        {
+            isStop = true;
         }
     }
 }

@@ -8,7 +8,7 @@
     <OutputType>WinExe</OutputType>
     <RootNamespace>OpticalFiber</RootNamespace>
     <AssemblyName>OpticalFiber</AssemblyName>
-    <TargetFrameworkVersion>v4.6.1</TargetFrameworkVersion>
+    <TargetFrameworkVersion>v4.8</TargetFrameworkVersion>
     <FileAlignment>512</FileAlignment>
     <AutoGenerateBindingRedirects>true</AutoGenerateBindingRedirects>
     <Deterministic>true</Deterministic>
@@ -64,9 +64,6 @@
     <SignManifests>false</SignManifests>
   </PropertyGroup>
   <ItemGroup>
-    <Reference Include="Authorize">
-      <HintPath>..\Authorize\bin\Release\netstandard2.0\Authorize.dll</HintPath>
-    </Reference>
     <Reference Include="BouncyCastle.Crypto, Version=1.8.5.0, Culture=neutral, PublicKeyToken=0e99375e54769942">
       <HintPath>packages\BouncyCastle.1.8.5\lib\BouncyCastle.Crypto.dll</HintPath>
     </Reference>
@@ -139,6 +136,7 @@
     <Compile Include="Froms\FrmCheckPwd.Designer.cs">
       <DependentUpon>FrmCheckPwd.cs</DependentUpon>
     </Compile>
+    <Compile Include="ModBusService.cs" />
     <Compile Include="ModBus\AsyncSocket.cs" />
     <Compile Include="Config\ConfigClass.cs" />
     <Compile Include="ModBus\ModBusTCP\ModBusTCP_SyncNetWorkStream.cs" />
@@ -420,6 +418,16 @@
   </ItemGroup>
   <ItemGroup>
     <None Include="Resources\最小化.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\Authorize\Authorize.csproj">
+      <Project>{83b99021-08b0-4d94-b0ba-d665b8ab1d67}</Project>
+      <Name>Authorize</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\ModBus\ModBus\ModBus.csproj">
+      <Project>{3bd79ef0-8265-4c4d-82fb-5d0acd5bd9a7}</Project>
+      <Name>ModBus</Name>
+    </ProjectReference>
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
 </Project>

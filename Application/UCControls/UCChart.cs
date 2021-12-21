@@ -83,15 +83,15 @@ namespace OpticalFiber
             if (partitionNo == 0)//是通道的  横轴起始位-200
             {
                 startPosition = 1;
-                endPosition = DataClass.list_DeviceChannelParam[deviceNo].struct_ChannelParams[channelNo].length;//通道光纤长度
+                endPosition = ModBusService.Instance().dtsModBuses[deviceNo].dtsDeviceDataModel.DtsChannelDataModels[channelNo].Channel_CollectionsInfo.TempPosCount;//温度点数量
                 MaxmumX = endPosition;
-                MinmumX = -200;
+                MinmumX = 0;//-200
             }
             else
             {
-                startPosition = DataClass.list_DevicePartition[deviceNo].struct_devicePartition.struct_ChannelPartitions[channelNo].struct_Partitions[partitionNo].startPosition;
-                endPosition = DataClass.list_DevicePartition[deviceNo].struct_devicePartition.struct_ChannelPartitions[channelNo].struct_Partitions[partitionNo].endPosition;
-                lenght = DataClass.list_DeviceChannelParam[deviceNo].struct_ChannelParams[channelNo].length;
+                startPosition = ModBusService.Instance().dtsModBuses[deviceNo].dtsDeviceDataModel.DtsChannelDataModels[channelNo].DtsPartDataModels[partitionNo].Part_SettingInfo.StartPos;//分区开始位置
+                endPosition = ModBusService.Instance().dtsModBuses[deviceNo].dtsDeviceDataModel.DtsChannelDataModels[channelNo].DtsPartDataModels[partitionNo].Part_SettingInfo.EndPos;//分区结束位置
+                //lenght = DataClass.list_DeviceChannelParam[deviceNo].struct_ChannelParams[channelNo].length;
                 MaxmumX = endPosition;
                 MinmumX = startPosition;
             }
@@ -115,10 +115,10 @@ namespace OpticalFiber
             int avgMaxposition = 0;
             double realMaxtemper = 0;
             int realMaxposition = 0;
-            series_AvgTemper.Points.Clear();
+            //series_AvgTemper.Points.Clear();
             series_RealTemper.Points.Clear();
-            series_RiseTemper.Points.Clear();
-            double avgTempTemper = 0.0;
+            //series_RiseTemper.Points.Clear();
+            //double avgTempTemper = 0.0;
             double realTempTemper = 0.0;
             if (endPosition - startPosition <= 0)
             {
@@ -126,11 +126,11 @@ namespace OpticalFiber
             }
             for (int i = startPosition; i < endPosition; i++)
             {
-                if (DataClass.list_TcpCommFault[deviceNo])//断纤 IsBroken()||  通讯故障  全部置0 
+                if (IsBroken())//断纤 IsBroken()||  通讯故障  全部置0 
                 {
-                    avgTempTemper = 0;
+                    //avgTempTemper = 0;
                     realTempTemper = 0;
-                    series_AvgTemper.Points.AddXY(i, 0);
+                    //series_AvgTemper.Points.AddXY(i, 0);
                     series_RealTemper.Points.AddXY(i, 0);
                 }
                 else
@@ -142,18 +142,18 @@ namespace OpticalFiber
                     }
                     else
                     {
-                        avgTempTemper = (double)DataClass.list_DeviceTemper[deviceNo].channelTempers[channelNo].averageTemper[i] / 10;
-                        series_AvgTemper.Points.AddXY(i, avgTempTemper);
-                        realTempTemper = (double)DataClass.list_DeviceTemper[deviceNo].channelTempers[channelNo].realTemper[i] / 10;
+                        //avgTempTemper = (double)DataClass.list_DeviceTemper[deviceNo].channelTempers[channelNo].averageTemper[i] / 10;
+                        //series_AvgTemper.Points.AddXY(i, avgTempTemper);
+                        realTempTemper = (double)ModBusService.Instance().dtsModBuses[deviceNo].dtsDeviceDataModel.DtsChannelDataModels[channelNo].Channel_Temps[i] / 10;
                         series_RealTemper.Points.AddXY(i, realTempTemper);
                     }
                 }
 
-                if (avgTempTemper > avgMaxtemper)
-                {
-                    avgMaxtemper = avgTempTemper;
-                    avgMaxposition = i;
-                }
+                //if (avgTempTemper > avgMaxtemper)
+                //{
+                //    avgMaxtemper = avgTempTemper;
+                //    avgMaxposition = i;
+                //}
                 if (realTempTemper > realMaxtemper)
                 {
                     realMaxtemper = realTempTemper;
@@ -161,55 +161,70 @@ namespace OpticalFiber
                 }
             }
 
-            if (IsBroken() || DataClass.list_TcpCommFault[deviceNo])// 
+            if (IsBroken() || IsNetCommunFault())// 断纤 通讯故障
             {
-                series_AvgTemper.Points.AddXY(endPosition, 0);
+                //series_AvgTemper.Points.AddXY(endPosition, 0);
                 series_RealTemper.Points.AddXY(endPosition, 0);
             }
             else
             {
                 if (partitionNo == 0)//通道
                 {
-                    avgTempTemper = (double)DataClass.list_DeviceTemper[deviceNo].channelTempers[channelNo].averageTemper[endPosition - 1] / 10;
-                    series_AvgTemper.Points.AddXY(endPosition, avgTempTemper);
-                    realTempTemper = (double)DataClass.list_DeviceTemper[deviceNo].channelTempers[channelNo].realTemper[endPosition - 1] / 10;
-                    series_RealTemper.Points.AddXY(endPosition, realTempTemper);
+                    //avgTempTemper = (double)DataClass.list_DeviceTemper[deviceNo].channelTempers[channelNo].averageTemper[endPosition - 1] / 10;
+                    //series_AvgTemper.Points.AddXY(endPosition, avgTempTemper);
+
+
+                    //realTempTemper = (double)DataClass.list_DeviceTemper[deviceNo].channelTempers[channelNo].realTemper[endPosition - 1] / 10;
+                    //series_RealTemper.Points.AddXY(endPosition, realTempTemper);
                 }
                 else//分区
                 {
                     if (endPosition == lenght)
                     {
-                        avgTempTemper = (double)DataClass.list_DeviceTemper[deviceNo].channelTempers[channelNo].averageTemper[endPosition - 1] / 10;
-                        series_AvgTemper.Points.AddXY(endPosition, avgTempTemper);
-                        realTempTemper = (double)DataClass.list_DeviceTemper[deviceNo].channelTempers[channelNo].realTemper[endPosition - 1] / 10;
-                        series_RealTemper.Points.AddXY(endPosition, realTempTemper);
+                        //avgTempTemper = (double)DataClass.list_DeviceTemper[deviceNo].channelTempers[channelNo].averageTemper[endPosition - 1] / 10;
+                        //series_AvgTemper.Points.AddXY(endPosition, avgTempTemper);
+
+                        //realTempTemper = (double)DataClass.list_DeviceTemper[deviceNo].channelTempers[channelNo].realTemper[endPosition - 1] / 10;
+                        //series_RealTemper.Points.AddXY(endPosition, realTempTemper);
                     }
                     else
                     {
-                        avgTempTemper = (double)DataClass.list_DeviceTemper[deviceNo].channelTempers[channelNo].averageTemper[endPosition] / 10;
-                        series_AvgTemper.Points.AddXY(endPosition, avgTempTemper);
-                        realTempTemper = (double)DataClass.list_DeviceTemper[deviceNo].channelTempers[channelNo].realTemper[endPosition] / 10;
-                        series_RealTemper.Points.AddXY(endPosition, realTempTemper);
+                        //avgTempTemper = (double)DataClass.list_DeviceTemper[deviceNo].channelTempers[channelNo].averageTemper[endPosition] / 10;
+                        //series_AvgTemper.Points.AddXY(endPosition, avgTempTemper);
+
+                        //realTempTemper = (double)DataClass.list_DeviceTemper[deviceNo].channelTempers[channelNo].realTemper[endPosition] / 10;
+                        //series_RealTemper.Points.AddXY(endPosition, realTempTemper);
                     }
                 }
 
 
             }
-            if (toolStripMenuItem1.Checked)
-            {
-                lblMax.Text = "最高温度：" + avgMaxtemper + "℃ 距离：" + avgMaxposition + "米";
-            }
-            else if (toolStripMenuItem2.Checked)
-            {
-                lblMax.Text = "最高温度：" + realMaxtemper + "℃ 距离：" + realMaxposition + "米";
-            }
+
+            lblMax.Text = "最高温度：" + realMaxtemper + "℃ 距离：" + realMaxposition + "米";
+            //if (toolStripMenuItem1.Checked)
+            //{
+            //    lblMax.Text = "最高温度：" + avgMaxtemper + "℃ 距离：" + avgMaxposition + "米";
+            //}
+            //else if (toolStripMenuItem2.Checked)
+            //{
+            //    lblMax.Text = "最高温度：" + realMaxtemper + "℃ 距离：" + realMaxposition + "米";
+            //}
         }
 
         private bool IsBroken()
         {
             bool isBroken = false;
-            int alarmStatus = DataClass.list_DeviceChannelParam[deviceNo].struct_ChannelParams[channelNo].isBroken;
-            if (alarmStatus == 1)
+            if (ModBusService.Instance().dtsModBuses[deviceNo].dtsDeviceDataModel.DtsChannelDataModels[channelNo].Channel_BaseInfo.IsBrokenAlarm > 0)
+            {
+                isBroken = true;
+            }
+            return isBroken;
+        }
+
+        private bool IsNetCommunFault()
+        {
+            bool isBroken = false;
+            if (ModBusService.Instance().dtsModBuses[deviceNo].dtsDeviceDataModel.Device_FaultInfo.IsNetCommunFault > 0)
             {
                 isBroken = true;
             }
@@ -278,43 +293,61 @@ namespace OpticalFiber
                 tempPoint = point;
 
                 int locatonX = (int)chart1.ChartAreas[0].CursorX.Position;
-                if (toolStripMenuItem1.Checked)
+                //if (toolStripMenuItem1.Checked)
+                //{
+                //    if (locatonX > 0)
+                //    {
+                //        if (partitionNo == 0)//通道
+                //        {
+                //            if (series_AvgTemper.Points.Count > 0)
+                //            {
+                //                toolTip.SetToolTip(chart1, "温度" + series_AvgTemper.Points[locatonX - 1].YValues[0] + "℃\r\n" + "距离" + (locatonX) + "米");
+                //            }
+                //        }
+                //        else//分区
+                //        {
+                //            if (series_AvgTemper.Points.Count > 0)
+                //            {
+                //                toolTip.SetToolTip(chart1, "温度" + series_AvgTemper.Points[locatonX - startPosition].YValues[0] + "℃\r\n" + "距离" + (locatonX) + "米");
+                //            }
+                //        }
+                //    }
+                //}
+                //if (toolStripMenuItem2.Checked)
+                //{
+                //    if (locatonX > 0)
+                //    {
+                //        if (partitionNo == 0)//通道
+                //        {
+                //            if (series_RealTemper.Points.Count > 0)
+                //            {
+                //                toolTip.SetToolTip(chart1, "温度" + series_RealTemper.Points[locatonX - 1].YValues[0] + "℃\r\n" + "距离" + (locatonX) + "米");
+                //            }
+                //        }
+                //        else//分区
+                //        {
+                //            if (series_RealTemper.Points.Count > 0)
+                //            {
+                //                toolTip.SetToolTip(chart1, "温度" + series_RealTemper.Points[locatonX - startPosition].YValues[0] + "℃\r\n" + "距离" + (locatonX) + "米");
+                //            }
+                //        }
+                //    }
+                //}
+
+                if (locatonX > 0)
                 {
-                    if (locatonX > 0)
+                    if (partitionNo == 0)//通道
                     {
-                        if (partitionNo == 0)//通道
+                        if (series_RealTemper.Points.Count > 0)
                         {
-                            if (series_AvgTemper.Points.Count > 0)
-                            {
-                                toolTip.SetToolTip(chart1, "温度" + series_AvgTemper.Points[locatonX - 1].YValues[0] + "℃\r\n" + "距离" + (locatonX) + "米");
-                            }
-                        }
-                        else//分区
-                        {
-                            if (series_AvgTemper.Points.Count > 0)
-                            {
-                                toolTip.SetToolTip(chart1, "温度" + series_AvgTemper.Points[locatonX - startPosition].YValues[0] + "℃\r\n" + "距离" + (locatonX) + "米");
-                            }
+                            toolTip.SetToolTip(chart1, "温度" + series_RealTemper.Points[locatonX - 1].YValues[0] + "℃\r\n" + "距离" + (locatonX) + "米");
                         }
                     }
-                }
-                if (toolStripMenuItem2.Checked)
-                {
-                    if (locatonX > 0)
+                    else//分区
                     {
-                        if (partitionNo == 0)//通道
+                        if (series_RealTemper.Points.Count > 0)
                         {
-                            if (series_RealTemper.Points.Count > 0)
-                            {
-                                toolTip.SetToolTip(chart1, "温度" + series_RealTemper.Points[locatonX - 1].YValues[0] + "℃\r\n" + "距离" + (locatonX) + "米");
-                            }
-                        }
-                        else//分区
-                        {
-                            if (series_RealTemper.Points.Count > 0)
-                            {
-                                toolTip.SetToolTip(chart1, "温度" + series_RealTemper.Points[locatonX - startPosition].YValues[0] + "℃\r\n" + "距离" + (locatonX) + "米");
-                            }
+                            toolTip.SetToolTip(chart1, "温度" + series_RealTemper.Points[locatonX - startPosition].YValues[0] + "℃\r\n" + "距离" + (locatonX) + "米");
                         }
                     }
                 }
