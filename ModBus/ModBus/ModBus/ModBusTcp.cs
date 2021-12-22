@@ -3,8 +3,9 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
-using EasyModbus;
+using NModbus;
 using ModBus.ModBus;
+using System.Net.Sockets;
 
 namespace ModBus
 {
@@ -12,25 +13,39 @@ namespace ModBus
     {
         int port;
         string ip;
-        ModbusClient modbusClient;
+        IModbusMaster modbusMaster;
 
-        public bool IsConnect { get => modbusClient.Connected; }
+        public bool IsConnect
+        {
+            get
+            {
+                if (modbusMaster == null) return false;
+                return true;
+            }
+        }
         public int Port { get => port; }
         public string IpAddress { get => ip; }
 
 
         public ModBusTcp(string ip, int port)
         {
-            this.port = port;
-            this.ip = ip;
-            modbusClient = new ModbusClient();
+            try
+            {
+                this.port = port;
+                this.ip = ip;
+            }
+            catch (Exception ex)
+            {
+
+            }
+
         }
 
         public bool Close()
         {
             try
             {
-                modbusClient.Disconnect();
+                modbusMaster.Dispose();
                 return true;
             }
             catch (Exception ex)
@@ -44,7 +59,7 @@ namespace ModBus
             response = string.Empty;
             try
             {
-                modbusClient.Connect(ip, port);
+                modbusMaster = new ModbusFactory().CreateMaster(new TcpClient(ip, port));
                 return true;
             }
             catch (Exception ex)
@@ -54,13 +69,13 @@ namespace ModBus
             }
         }
 
-        public bool ReadInputRegisters(int startAdd, int count, out int[] values, out string response)
+        public bool ReadInputRegisters(byte slaveAdd, ushort startAdd, ushort count, out ushort[] values, out string response)
         {
             values = null;
             response = string.Empty;
             try
             {
-                values = modbusClient.ReadInputRegisters(startAdd, count);
+                values = modbusMaster.ReadInputRegisters(slaveAdd, startAdd, count);
                 return true;
             }
             catch (Exception ex)
@@ -70,13 +85,13 @@ namespace ModBus
             }
         }
 
-        public bool ReadHoldingRegisters(int startAdd, int count, out int[] values, out string response)
+        public bool ReadHoldingRegisters(byte slaveAdd, ushort startAdd, ushort count, out ushort[] values, out string response)
         {
             values = null;
             response = string.Empty;
             try
             {
-                values = modbusClient.ReadHoldingRegisters(startAdd, count);
+                values = modbusMaster.ReadHoldingRegisters(slaveAdd, startAdd, count);
                 return true;
             }
             catch (Exception ex)
@@ -86,12 +101,12 @@ namespace ModBus
             }
         }
 
-        public bool WriteMultipleRegisters(int startAdd, int[] values, out string response)
+        public bool WriteMultipleRegisters(byte slaveAdd, ushort startAdd, ushort[] values, out string response)
         {
             response = string.Empty;
             try
             {
-                modbusClient.WriteMultipleRegisters(startAdd, values);
+                modbusMaster.WriteMultipleRegisters(slaveAdd, startAdd, values);
                 return true;
             }
             catch (Exception ex)
@@ -101,12 +116,12 @@ namespace ModBus
             }
         }
 
-        public bool WriteSingleRegister(int startAdd, int value, out string response)
+        public bool WriteSingleRegister(byte slaveAdd, ushort startAdd, ushort value, out string response)
         {
             response = string.Empty;
             try
             {
-                modbusClient.WriteSingleRegister(startAdd, value);
+                modbusMaster.WriteSingleRegister(slaveAdd, startAdd, value);
                 return true;
             }
             catch (Exception ex)

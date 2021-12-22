@@ -290,9 +290,10 @@ namespace OpticalFiber
                         }
                         #endregion
 
-                        #region//断纤故障
-                        for (int j = 0; j < 8; j++)
+
+                        for (int j = 0; j < DataClass.list_DeviceEnables[i].channelCount; j++)
                         {
+                            #region//断纤故障
                             if (ModBusService.Instance().dtsModBuses[i].dtsDeviceDataModel.DtsChannelDataModels[j].Channel_BaseInfo.IsBrokenAlarm > 0)
                             {
                                 temp_TempBroken = new Struct_AlarmMsg();
@@ -328,7 +329,7 @@ namespace OpticalFiber
                                     }
                                 }
                             }
-
+                            #endregion
                             for (int k = 0; k < ModBusService.Instance().dtsModBuses[i].dtsDeviceDataModel.DtsChannelDataModels[j].Channel_BaseInfo.DingWenAlarmCount; k++)//定温报警
                             {
                                 {
@@ -456,7 +457,7 @@ namespace OpticalFiber
                             }
 
                         }
-                        #endregion
+
                     }
                 }
             }
@@ -686,7 +687,7 @@ namespace OpticalFiber
                 {
                     allMsg.Add(AlarmMsg);
                 }
-                foreach (Struct_AlarmMsg AlarmMsg in list_CommFault)
+                foreach (Struct_AlarmMsg AlarmMsg in list_AlarmChaWen)
                 {
                     allMsg.Add(AlarmMsg);
                 }

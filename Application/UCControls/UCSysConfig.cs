@@ -24,7 +24,7 @@ namespace OpticalFiber
         public UCSysConfig()
         {
             InitializeComponent();
-          
+
             cbxDevice.SelectedIndex = 0;
             cbxChannel.SelectedIndex = 0;
             Init_DgvDevice();
@@ -43,7 +43,7 @@ namespace OpticalFiber
                 int i = 1;
                 foreach (struct_DeviceEnable struct_DeviceEnable in struct_DeviceEnables)
                 {
-                    dgvDevice.Rows.Add(i++, struct_DeviceEnable.name, struct_DeviceEnable.ipEndPoint.Address, struct_DeviceEnable.ipEndPoint.Port, struct_DeviceEnable.enable);
+                    dgvDevice.Rows.Add(i++, struct_DeviceEnable.name, struct_DeviceEnable.ipEndPoint.Address, struct_DeviceEnable.ipEndPoint.Port, struct_DeviceEnable.channelCount, struct_DeviceEnable.enable);
                 }
             }
             catch (Exception ex)
@@ -58,7 +58,7 @@ namespace OpticalFiber
             {
                 dgvPartition.Rows.Clear();
                 struct_PrtNames = sql_Select.Select_PrtName();
-                foreach(struct_PrtName struct_PrtName in struct_PrtNames)
+                foreach (struct_PrtName struct_PrtName in struct_PrtNames)
                 {
                     dgvPartition.Rows.Add("设备" + struct_PrtName.deviceNo, "通道" + struct_PrtName.channelNo, struct_PrtName.prtNo, struct_PrtName.prtName);
                 }
@@ -69,7 +69,7 @@ namespace OpticalFiber
             }
         }
 
-        private void Upate_DgvPartition(int deviceNo,int channelNo)
+        private void Upate_DgvPartition(int deviceNo, int channelNo)
         {
             try
             {
@@ -109,10 +109,10 @@ namespace OpticalFiber
             {
                 if (e.RowIndex >= 0)
                 {
-                    if (e.ColumnIndex == 5)
+                    if (e.ColumnIndex == 6)
                     {
-                       
-                        if (MessageBox.Show("确定要修改设备信息吗？","操作提示",MessageBoxButtons.OKCancel,MessageBoxIcon.Information) == DialogResult.OK)
+
+                        if (MessageBox.Show("确定要修改设备信息吗？", "操作提示", MessageBoxButtons.OKCancel, MessageBoxIcon.Information) == DialogResult.OK)
                         {
                             struct_DeviceEnable.deviceNo = Convert.ToInt32(dgvDevice.CurrentRow.Cells[0].Value);
                             struct_DeviceEnable.name = dgvDevice.CurrentRow.Cells[1].Value.ToString();
@@ -120,13 +120,14 @@ namespace OpticalFiber
                             IPAddress.TryParse(dgvDevice.CurrentRow.Cells[2].Value.ToString(), out iPAddress);
                             int port = Convert.ToInt32(dgvDevice.CurrentRow.Cells[3].Value);
                             struct_DeviceEnable.ipEndPoint = new IPEndPoint(iPAddress, port);
-                            struct_DeviceEnable.enable = Convert.ToBoolean(dgvDevice.CurrentRow.Cells[4].Value.ToString());
+                            struct_DeviceEnable.channelCount = Convert.ToInt32(dgvDevice.CurrentRow.Cells[4].Value.ToString());
+                            struct_DeviceEnable.enable = Convert.ToBoolean(dgvDevice.CurrentRow.Cells[5].Value.ToString());
                             sql_Update.Update_Device(struct_DeviceEnable.deviceNo, struct_DeviceEnable);
                             MessageBox.Show("修改成功！");
                             sql_Insert.Insert_Audit(new OperationRecord() { dateTime = DateTime.Now, user = DataClass.userLevel, record = "修改设备信息" + (struct_DeviceEnable.deviceNo) });
                             Init_DgvDevice();
                         }
-                        
+
                         //if (!Convert.ToBoolean(dgvDevice.CurrentRow.Cells[3].Value.ToString()))
                         //{
                         //    if (MessageBox.Show("确定要关闭该设备吗？","操作提示", MessageBoxButtons.OKCancel, MessageBoxIcon.Information) == DialogResult.OK)
@@ -145,7 +146,7 @@ namespace OpticalFiber
                         //    }
                         //}
                     }
-                   
+
                 }
             }
             catch (Exception ex)
@@ -162,7 +163,7 @@ namespace OpticalFiber
                 {
                     if (e.ColumnIndex == 4)
                     {
-                      
+
                         if (MessageBox.Show("确定要修改该分区名称吗？", "操作提示", MessageBoxButtons.OKCancel, MessageBoxIcon.Information) == DialogResult.OK)
                         {
                             struct_prtName.deviceNo = Convert.ToInt32(dgvPartition.CurrentRow.Cells[0].Value.ToString().Split('备')[1]);

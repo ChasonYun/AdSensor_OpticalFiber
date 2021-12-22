@@ -75,7 +75,7 @@ namespace OpticalFiber
                         sql = "select passWord from pwd where userName='sysAdministrator'";
                         break;
                 }
-                
+
                 conn = new MySqlConnection(connstr);
                 cmd = new MySqlCommand(sql, conn);
                 conn.Open();
@@ -114,7 +114,8 @@ namespace OpticalFiber
                 MySqlDataReader mySqlDataReader = cmd.ExecuteReader();
                 while (mySqlDataReader.Read())
                 {
-                    struct_DeviceEnable.enable = Convert.ToBoolean(Convert.ToString(mySqlDataReader.GetValue(4)));
+                    struct_DeviceEnable.enable = Convert.ToBoolean(Convert.ToString(mySqlDataReader.GetValue(5)));
+                    struct_DeviceEnable.channelCount = Convert.ToInt32(mySqlDataReader.GetValue(4));
                     iPAddress = IPAddress.Parse(Convert.ToString(mySqlDataReader.GetValue(2)));
                     port = Convert.ToInt32(Convert.ToString(mySqlDataReader.GetValue(3)));
                     struct_DeviceEnable.ipEndPoint = new IPEndPoint(iPAddress, port);
@@ -142,7 +143,7 @@ namespace OpticalFiber
         /// <param name="deviceNo">设备编号</param>
         /// <param name="channlNo">通道编号</param>
         /// <returns></returns>
-        public List<struct_PrtName> Select_PrtName(int deviceNo,int channlNo)
+        public List<struct_PrtName> Select_PrtName(int deviceNo, int channlNo)
         {
             List<struct_PrtName> list_prtname = new List<struct_PrtName>();
             struct_PrtName struct_PrtName;
@@ -260,7 +261,7 @@ namespace OpticalFiber
                 conn = new MySqlConnection(connstr);
                 cmd = new MySqlCommand(sql, conn);
                 conn.Open();
-                bytes= (byte[])cmd.ExecuteScalar();
+                bytes = (byte[])cmd.ExecuteScalar();
             }
             catch (Exception ex)
             {
@@ -279,7 +280,7 @@ namespace OpticalFiber
         /// 查询报警信息
         /// </summary>
         /// <returns></returns>
-        public List<Struct_AlarmMsg> Select_Alarm(int type,string start,string end)
+        public List<Struct_AlarmMsg> Select_Alarm(int type, string start, string end)
         {
             List<Struct_AlarmMsg> list_AlarmMsg = new List<Struct_AlarmMsg>();
             Struct_AlarmMsg alarmMsg;
@@ -302,7 +303,7 @@ namespace OpticalFiber
                         sql = "select   *  from alarm where datetime between '" + start + "' and '" + end + "' and type like '通讯%' order by datetime desc ";
                         break;
                 }
-                
+
                 conn = new MySqlConnection(connstr);
                 cmd = new MySqlCommand(sql, conn);
                 conn.Open();

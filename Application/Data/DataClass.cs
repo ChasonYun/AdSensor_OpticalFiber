@@ -105,6 +105,7 @@ namespace OpticalFiber
         public bool enable;//是否启用
         public IPEndPoint ipEndPoint;//终结点
         public string name;//设备名称
+        public int channelCount;//通道数量
     }
 
     /// <summary>

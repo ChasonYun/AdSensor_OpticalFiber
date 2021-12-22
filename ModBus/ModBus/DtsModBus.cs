@@ -22,23 +22,25 @@ namespace ModBus
 
         string response;
 
-        int[] channelSettingInfo = new int[3];
-        int[] deviceFaultInfo = new int[4];
-        int[] channelBaseInfo = new int[6];
-        int[] channelCollectionInfo = new int[5];
-        int[] channelBrokenInfo = new int[4];
-        int[] partSettingInfo = new int[5];
-        int[] partTempInfo = new int[6];
-        int[] dingWenAlarm = new int[6];
-        int[] chaWenAlarm = new int[6];
-        int[] wenShengAlarm = new int[6];
-        int[] channelTemps = new int[44536];
+        ushort[] channelSettingInfo = new ushort[3];
+        ushort[] deviceFaultInfo = new ushort[4];
+        ushort[] channelBaseInfo = new ushort[6];
+        ushort[] channelCollectionInfo = new ushort[5];
+        ushort[] channelBrokenInfo = new ushort[4];
+        ushort[] partSettingInfo = new ushort[5];
+        ushort[] partTempInfo = new ushort[6];
+        ushort[] dingWenAlarm = new ushort[6];
+        ushort[] chaWenAlarm = new ushort[6];
+        ushort[] wenShengAlarm = new ushort[6];
+        ushort[] channelTemps = new ushort[5000];
         Action<string, string> EvAlarm;
 
-        public DtsModBus(string ip, int port)
+        public DtsModBus(string ip, int port, int channelCount)
         {
             this.ip = ip;
             this.port = port;
+            this.channelCount = channelCount;
+            if (this.channelCount > 255) this.channelCount = 255;
             modeBusClient = new ModBusTcp(ip, port);
             dtsDeviceDataModel = new DtsDeviceDataModel();
         }
@@ -67,7 +69,7 @@ namespace ModBus
         {
             try
             {
-                modeBusClient.WriteSingleRegister(1, 1, out response);
+                modeBusClient.WriteSingleRegister(1, 1, 1, out response);
                 return true;
             }
             catch (Exception ex)
@@ -86,7 +88,7 @@ namespace ModBus
         {
             try
             {
-                modeBusClient.WriteSingleRegister(2, 1, out response);
+                modeBusClient.WriteSingleRegister(1, 2, 1, out response);
                 return true;
             }
             catch (Exception ex)
@@ -105,7 +107,7 @@ namespace ModBus
         {
             try
             {
-                modeBusClient.WriteSingleRegister(3, 1, out response);
+                modeBusClient.WriteSingleRegister(1, 3, 1, out response);
                 return true;
             }
             catch (Exception ex)
@@ -124,12 +126,16 @@ namespace ModBus
         {
             try
             {
-                if (modeBusClient.ReadHoldingRegisters(51, 3, out channelSettingInfo, out response))
+                for (int i = 1; i <= channelCount; i++)
                 {
-                    dtsDeviceDataModel.ChannelSettingInfo.Time = channelSettingInfo[0];
-                    dtsDeviceDataModel.ChannelSettingInfo.TempInterval = channelSettingInfo[1];
-                    dtsDeviceDataModel.ChannelSettingInfo.Accuracy = channelSettingInfo[2];
+                    if (modeBusClient.ReadHoldingRegisters((byte)i, 51, 3, out channelSettingInfo, out response))
+                    {
+                        dtsDeviceDataModel.ChannelSettingInfo.Time = channelSettingInfo[0];
+                        dtsDeviceDataModel.ChannelSettingInfo.TempInterval = channelSettingInfo[1];
+                        dtsDeviceDataModel.ChannelSettingInfo.Accuracy = channelSettingInfo[2];
+                    }
                 }
+
             }
             catch (Exception ex)
             {
@@ -145,9 +151,9 @@ namespace ModBus
         {
             try
             {
-                for (int i = 0; i < channelCount; i++)
+                for (int i = 1; i <= channelCount; i++)
                 {
-                    if (modeBusClient.ReadInputRegisters(10, 6, out channelBaseInfo, out response))
+                    if (modeBusClient.ReadInputRegisters((byte)i, 10, 6, out channelBaseInfo, out response))
                     {
                         dtsDeviceDataModel.DtsChannelDataModels[i].Channel_BaseInfo.Id = channelBaseInfo[0];
                         dtsDeviceDataModel.DtsChannelDataModels[i].Channel_BaseInfo.PartCount = channelBaseInfo[1];
@@ -172,9 +178,9 @@ namespace ModBus
         {
             try
             {
-                for (int i = 0; i < channelCount; i++)
+                for (int i = 1; i <= channelCount; i++)
                 {
-                    if (modeBusClient.ReadInputRegisters(50, 5, out channelCollectionInfo, out response))
+                    if (modeBusClient.ReadInputRegisters((byte)i, 50, 5, out channelCollectionInfo, out response))
                     {
                         dtsDeviceDataModel.DtsChannelDataModels[i].Channel_BaseInfo.Id = channelCollectionInfo[0];
                         dtsDeviceDataModel.DtsChannelDataModels[i].Channel_BaseInfo.PartCount = channelCollectionInfo[1];
@@ -199,9 +205,9 @@ namespace ModBus
         {
             try
             {
-                for (int i = 0; i < channelCount; i++)
+                for (int i = 1; i <= channelCount; i++)
                 {
-                    if (modeBusClient.ReadInputRegisters(100, 4, out channelBrokenInfo, out response))
+                    if (modeBusClient.ReadInputRegisters((byte)i, 100, 4, out channelBrokenInfo, out response))
                     {
                         dtsDeviceDataModel.DtsChannelDataModels[i].Channel_BrokenInfo.BrokenPos = channelBrokenInfo[0];
                         dtsDeviceDataModel.DtsChannelDataModels[i].Channel_BrokenInfo.Broken_Year_Month = channelBrokenInfo[1];
@@ -224,7 +230,7 @@ namespace ModBus
         {
             try
             {
-                if (modeBusClient.ReadInputRegisters(200, 4, out deviceFaultInfo, out response))
+                if (modeBusClient.ReadInputRegisters(1, 200, 4, out deviceFaultInfo, out response))
                 {
                     dtsDeviceDataModel.Device_FaultInfo.IsCommunctionFault = deviceFaultInfo[0];
                     dtsDeviceDataModel.Device_FaultInfo.IsMainPowerFault = deviceFaultInfo[1];
@@ -251,11 +257,11 @@ namespace ModBus
         {
             try
             {
-                for (int i = 0; i < channelCount; i++)
+                for (int i = 1; i <= channelCount; i++)
                 {
                     for (int j = 0; j < dtsDeviceDataModel.DtsChannelDataModels[i].Channel_BaseInfo.PartCount; j++)
                     {
-                        if (modeBusClient.ReadHoldingRegisters(1000, 5, out partSettingInfo, out response))
+                        if (modeBusClient.ReadHoldingRegisters((byte)i, 1000, 5, out partSettingInfo, out response))
                         {
                             dtsDeviceDataModel.DtsChannelDataModels[i].DtsPartDataModels[j].Part_SettingInfo.StartPos = partSettingInfo[0];
                             dtsDeviceDataModel.DtsChannelDataModels[i].DtsPartDataModels[j].Part_SettingInfo.EndPos = partSettingInfo[1];
@@ -281,11 +287,11 @@ namespace ModBus
         {
             try
             {
-                for (int i = 0; i < 8; i++)
+                for (int i = 1; i <= channelCount; i++)
                 {
                     for (int j = 0; j < dtsDeviceDataModel.DtsChannelDataModels[i].Channel_BaseInfo.PartCount; j++)
                     {
-                        if (modeBusClient.ReadInputRegisters(1000, 5, out partTempInfo, out response))
+                        if (modeBusClient.ReadInputRegisters((byte)i, 1000, 5, out partTempInfo, out response))
                         {
                             dtsDeviceDataModel.DtsChannelDataModels[i].DtsPartDataModels[j].Part_TempInfo.AlarmState = partTempInfo[0];
                             dtsDeviceDataModel.DtsChannelDataModels[i].DtsPartDataModels[j].Part_TempInfo.MaxTemp = partTempInfo[1];
@@ -311,11 +317,11 @@ namespace ModBus
         {
             try
             {
-                for (int i = 0; i < 8; i++)
+                for (int i = 1; i <= channelCount; i++)
                 {
                     for (int j = 0; j < dtsDeviceDataModel.DtsChannelDataModels[i].Channel_BaseInfo.DingWenAlarmCount; j++)
                     {
-                        if (modeBusClient.ReadInputRegisters(10000 + j * 1000, 5, out dingWenAlarm, out response))
+                        if (modeBusClient.ReadInputRegisters((byte)i, (ushort)(10000 + j * 1000), 5, out dingWenAlarm, out response))
                         {
                             dtsDeviceDataModel.DtsChannelDataModels[i].Channel_DingWenAlarmInfos[j].StartPos = dingWenAlarm[0];
                             dtsDeviceDataModel.DtsChannelDataModels[i].Channel_DingWenAlarmInfos[j].EndPos = dingWenAlarm[1];
@@ -342,11 +348,11 @@ namespace ModBus
         {
             try
             {
-                for (int i = 0; i < 8; i++)
+                for (int i = 1; i <= channelCount; i++)
                 {
                     for (int j = 0; j < dtsDeviceDataModel.DtsChannelDataModels[i].Channel_BaseInfo.ChaWenAlarmCount; j++)
                     {
-                        if (modeBusClient.ReadInputRegisters(14000 + j * 1000, 5, out chaWenAlarm, out response))
+                        if (modeBusClient.ReadInputRegisters((byte)i, (ushort)(14000 + j * 1000), 5, out chaWenAlarm, out response))
                         {
                             dtsDeviceDataModel.DtsChannelDataModels[i].Channel_ChaWenAlarmInfos[j].StartPos = chaWenAlarm[0];
                             dtsDeviceDataModel.DtsChannelDataModels[i].Channel_ChaWenAlarmInfos[j].EndPos = chaWenAlarm[1];
@@ -373,11 +379,11 @@ namespace ModBus
         {
             try
             {
-                for (int i = 0; i < 8; i++)
+                for (int i = 1; i <= channelCount; i++)
                 {
                     for (int j = 0; j < dtsDeviceDataModel.DtsChannelDataModels[i].Channel_BaseInfo.WenShengAlarmCount; j++)
                     {
-                        if (modeBusClient.ReadInputRegisters(12000 + j * 1000, 5, out wenShengAlarm, out response))
+                        if (modeBusClient.ReadInputRegisters((byte)i, (ushort)(12000 + j * 1000), 5, out wenShengAlarm, out response))
                         {
                             dtsDeviceDataModel.DtsChannelDataModels[i].Channel_WenShengAlarmInfos[j].StartPos = wenShengAlarm[0];
                             dtsDeviceDataModel.DtsChannelDataModels[i].Channel_WenShengAlarmInfos[j].EndPos = wenShengAlarm[1];
@@ -401,9 +407,9 @@ namespace ModBus
         {
             try
             {
-                for (int i = 0; i < 8; i++)
+                for (int i = 1; i <= channelCount; i++)
                 {
-                    if (modeBusClient.ReadInputRegisters(20000, 44536, out channelTemps, out response))
+                    if (modeBusClient.ReadInputRegisters((byte)i, 20000, 5000, out channelTemps, out response))
                     {
                         for (int j = 0; j < dtsDeviceDataModel.DtsChannelDataModels[i].Channel_CollectionsInfo.TempPosCount; j++)
                         {
@@ -426,7 +432,7 @@ namespace ModBus
         {
             Task.Factory.StartNew(() =>
             {
-                Connect();
+                //Connect();
                 while (!isStop)
                 {
                     if (!modeBusClient.IsConnect)
@@ -451,7 +457,7 @@ namespace ModBus
 
             });
             isStop = false;
-            modeBusClient.Close();
+            //modeBusClient.Close();
         }
 
         public void StopMonitor()

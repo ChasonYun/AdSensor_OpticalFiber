@@ -28,29 +28,38 @@ namespace OpticalFiber
             tlp.Dock = DockStyle.Fill;
             if (struct_tvwMsg.channelNo == 0 && struct_tvwMsg.partitionNo == 0)//这是一个设备的信息  展示通道数 对应的曲线信息
             {
-                //int channelNo = DataClass.list_DeviceParam[struct_tvwMsg.deviceNo].struct_deivceParam.channelNum;
-                //if (channelNo == 1)
-                //{
-                //    tlp.RowCount = 1;
-                //    tlp.ColumnCount = 1;
-                //}
-                //else if (channelNo == 2)
-                //{
-                //    tlp.RowCount = 1;
-                //    tlp.ColumnCount = 2;
-                //}
-                //else
+                for (int i = 0; i < 8; i++)
                 {
-                    tlp.RowCount = 2;
-                    tlp.ColumnCount = 4;
-                }
-                for(int i = 0; i < 8; i++)
-                {
+                    if (!DataClass.list_DeviceEnables[i].enable)
+                    {
+                        continue;
+                    }
+                    int channelNo = DataClass.list_DeviceEnables[i].channelCount;
+                    if (channelNo == 1)
+                    {
+                        tlp.RowCount = 1;
+                        tlp.ColumnCount = 1;
+                    }
+                    else if (channelNo == 2)
+                    {
+                        tlp.RowCount = 1;
+                        tlp.ColumnCount = 2;
+                    }
+                    else if (channelNo >= 3 && channelNo <= 6)
+                    {
+                        tlp.RowCount = 2;
+                        tlp.ColumnCount = 3;
+                    }
+                    else
+                    {
+                        tlp.RowCount = 2;
+                        tlp.ColumnCount = 4;
+                    }
                     foreach (struct_DeviceEnable _DeviceEnable in DataClass.list_DeviceEnables)
                     {
                         if (_DeviceEnable.deviceNo == struct_tvwMsg.deviceNo)
                         {
-                            title = _DeviceEnable.name + "—通道" + i;
+                            title = _DeviceEnable.name + "—通道" + (i + 1);
                         }
                     }
                     //title = "设备" + struct_tvwMsg.deviceNo + "—通道" + i;
@@ -59,13 +68,13 @@ namespace OpticalFiber
                     tlp.Controls.Add(ucChart);
                 }
             }
-            else if(struct_tvwMsg.partitionNo == 0)//一个通道
+            else if (struct_tvwMsg.partitionNo == 0)//一个通道
             {
                 foreach (struct_DeviceEnable _DeviceEnable in DataClass.list_DeviceEnables)
                 {
                     if (_DeviceEnable.deviceNo == struct_tvwMsg.deviceNo)
                     {
-                        title = _DeviceEnable.name + "—通道" + struct_tvwMsg.channelNo;
+                        title = _DeviceEnable.name + "—通道" + (struct_tvwMsg.channelNo + 1);
                     }
                 }
                 //title = "设备" + struct_tvwMsg.deviceNo + "—通道" + struct_tvwMsg.channelNo;
@@ -81,7 +90,7 @@ namespace OpticalFiber
                 {
                     if (_DeviceEnable.deviceNo == struct_tvwMsg.deviceNo)
                     {
-                        title = _DeviceEnable.name + "—通道" + struct_tvwMsg.channelNo + "—" + struct_tvwMsg.treeNodeName;
+                        title = _DeviceEnable.name + "—通道" + (struct_tvwMsg.channelNo + 1) + "—" + struct_tvwMsg.treeNodeName;
                     }
                 }
                 //title = "设备" + struct_tvwMsg.deviceNo + "—通道" + struct_tvwMsg.channelNo + "—" + struct_tvwMsg.treeNodeName;

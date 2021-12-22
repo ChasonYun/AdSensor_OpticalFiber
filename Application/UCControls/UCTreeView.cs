@@ -1,4 +1,4 @@
-﻿ using System;
+﻿using System;
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.Drawing;
@@ -43,18 +43,18 @@ namespace OpticalFiber
             public int partitions;
         }
 
-      
-       
-        
+
+
+
 
         List<struct_DeviceEnable> struct_DeviceEnables;
         struct_DeviceEnable struct_DeviceEnable;
 
         List<int> list_EnableDeviceNo = new List<int>();
 
-       
-        
-      
+
+
+
         struct_Tvw struct_tvw;
 
         public UCTreeView()
@@ -87,15 +87,13 @@ namespace OpticalFiber
                 Thread.Sleep(500);
                 for (int j = 0; j < list_EnableDeviceNo.Count; j++)
                 {
-
-                    int channelNum = DataClass.list_DeviceParam[list_EnableDeviceNo[j]].struct_deivceParam.channelNum;
-
+                    int channelNum = DataClass.list_DeviceEnables[list_EnableDeviceNo[j] - 1].channelCount;
                     struct_TvwChannel[] struct_TvwChannels = new struct_TvwChannel[channelNum + 1];//创建通道数组
 
 
-                    for (int k = 1; k <= channelNum; k++)
+                    for (int k = 0; k < channelNum; k++)
                     {
-                        int partitionNo = DataClass.list_DeviceChannelParam[list_EnableDeviceNo[j]].struct_ChannelParams[k].partition;
+                        int partitionNo = ModBusService.Instance().dtsModBuses[list_EnableDeviceNo[j] - 1].dtsDeviceDataModel.DtsChannelDataModels[k].Channel_BaseInfo.PartCount;
                         struct_TvwChannels[k].channelNo = k;
                         struct_TvwChannels[k].partitions = partitionNo;//把分区数赋值给通道
                     }
@@ -108,7 +106,7 @@ namespace OpticalFiber
             {
                 DataClass.ShowErrMsg("获取树视图结构体异常！——" + ex.Message);
             }
-            
+
         }
 
         TreeNode treeNodeDevice;
@@ -119,27 +117,27 @@ namespace OpticalFiber
         {
             try
             {
-                for(int i=0;i< struct_tvw.struct_TvwDevices.Length; i++)
+                for (int i = 0; i < struct_tvw.struct_TvwDevices.Length; i++)
                 {
                     treeNodeDevice = new TreeNode();//设备层
-                    foreach(struct_DeviceEnable _DeviceEnable in DataClass.list_DeviceEnables)
+                    foreach (struct_DeviceEnable _DeviceEnable in DataClass.list_DeviceEnables)
                     {
-                        if(_DeviceEnable.deviceNo == struct_tvw.struct_TvwDevices[i].deviceNo)
+                        if (_DeviceEnable.deviceNo == struct_tvw.struct_TvwDevices[i].deviceNo)
                         {
                             treeNodeDevice.Text = _DeviceEnable.name;
                         }
                     }
                     //treeNodeDevice.Text = "设备" + struct_tvw.struct_TvwDevices[i].deviceNo;
                     treeNodeDevice.ImageIndex = 0;
-                    for (int j=1;j < struct_tvw.struct_TvwDevices[i].struct_TvwChannels.Length; j++)
+                    for (int j = 1; j < struct_tvw.struct_TvwDevices[i].struct_TvwChannels.Length; j++)
                     {
                         treeNodeChannel = new TreeNode();//通道层
-                        treeNodeChannel.Text = "通道" + struct_tvw.struct_TvwDevices[i].struct_TvwChannels[j].channelNo;
+                        treeNodeChannel.Text = "通道" + (struct_tvw.struct_TvwDevices[i].struct_TvwChannels[j].channelNo + 1);
                         treeNodeChannel.ImageIndex = 1;
                         for (int k = 1; k <= struct_tvw.struct_TvwDevices[i].struct_TvwChannels[j].partitions; k++)
                         {
                             treeNodePartition = new TreeNode();
-                            foreach(struct_PrtName prtName in struct_PrtNames)
+                            foreach (struct_PrtName prtName in struct_PrtNames)
                             {
                                 if (prtName.deviceNo == struct_tvw.struct_TvwDevices[i].deviceNo && prtName.channelNo == struct_tvw.struct_TvwDevices[i].struct_TvwChannels[j].channelNo && prtName.prtNo == k)
                                 {
@@ -186,7 +184,7 @@ namespace OpticalFiber
 
         private void tvw_AfterSelect(object sender, TreeViewEventArgs e)
         {
-            
+
         }
 
         private void tvw_MouseDown(object sender, MouseEventArgs e)

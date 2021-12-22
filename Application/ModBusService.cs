@@ -33,7 +33,7 @@ namespace OpticalFiber
                     for (int i = 0; i < 8; i++)
                     {
                         _Device = DataClass.list_DeviceEnables[i];
-                        DtsModBus dtsModBus = new DtsModBus(_Device.ipEndPoint.Address.ToString(), _Device.ipEndPoint.Port);
+                        DtsModBus dtsModBus = new DtsModBus(_Device.ipEndPoint.Address.ToString(), _Device.ipEndPoint.Port, _Device.channelCount);
                         dtsModBuses.Add(dtsModBus);
                     }
                 }
@@ -61,7 +61,7 @@ namespace OpticalFiber
                         {
                             try
                             {
-                                DtsModBus dtsModBus = new DtsModBus(_Device.ipEndPoint.Address.ToString(), _Device.ipEndPoint.Port);
+                                DtsModBus dtsModBus = new DtsModBus(_Device.ipEndPoint.Address.ToString(), _Device.ipEndPoint.Port, _Device.channelCount);
                                 dtsModBuses.Add(dtsModBus);
                             }
                             catch (Exception)

@@ -29,42 +29,46 @@ namespace ModBus.ModBus
         /// <returns></returns>
         bool Connect(out string response);
 
-        bool Close();
+        //bool Close();
         /// <summary>
         /// 写单个寄存器
         /// </summary>
-        /// <param name="startAdd">开始地址</param>
-        /// <param name="value">值</param>
-        /// <param name="response">异常时 信息</param>
+        /// <param name="slaveAdd"></param>
+        /// <param name="startAdd"></param>
+        /// <param name="value"></param>
+        /// <param name="response"></param>
         /// <returns></returns>
-        bool WriteSingleRegister(int startAdd, int value, out string response);
+        bool WriteSingleRegister(byte slaveAdd, ushort startAdd, ushort value, out string response);
 
         /// <summary>
         /// 写多个寄存器
         /// </summary>
-        /// <param name="startAdd">开始地址</param>
-        /// <param name="values">值</param>
-        /// <param name="response">异常时 信息</param>
+        /// <param name="slaveAdd"></param>
+        /// <param name="startAdd"></param>
+        /// <param name="values"></param>
+        /// <param name="response"></param>
         /// <returns></returns>
-        bool WriteMultipleRegisters(int startAdd, int[] values, out string response);
+        bool WriteMultipleRegisters(byte slaveAdd, ushort startAdd, ushort[] values, out string response);
         /// <summary>
         /// 读多个输入寄存器
         /// </summary>
-        /// <param name="startAdd">开始地址</param>
-        /// <param name="count">数量</param>
-        /// <param name="values">值</param>
-        /// <param name="response">异常时 信息</param>
+        /// <param name="slaveAdd"></param>
+        /// <param name="startAdd"></param>
+        /// <param name="count"></param>
+        /// <param name="values"></param>
+        /// <param name="response"></param>
         /// <returns></returns>
-        bool ReadInputRegisters(int startAdd, int count, out int[] values, out string response);
+        bool ReadInputRegisters(byte slaveAdd, ushort startAdd, ushort count, out ushort[] values, out string response);
 
         /// <summary>
         /// 读多个保持寄存器
         /// </summary>
-        /// <param name="startAdd">开始地址</param>
-        /// <param name="count">数量</param>
-        /// <param name="values">值</param>
-        /// <param name="response">异常时 信息</param>
+        /// <param name="slaveAdd"></param>
+        /// <param name="startAdd"></param>
+        /// <param name="count"></param>
+        /// <param name="values"></param>
+        /// <param name="response"></param>
         /// <returns></returns>
-        bool ReadHoldingRegisters(int startAdd, int count, out int[] values, out string response);
+        bool ReadHoldingRegisters(byte slaveAdd, ushort startAdd, ushort count, out ushort[] values, out string response);
     }
 }

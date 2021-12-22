@@ -246,7 +246,7 @@ namespace OpticalFiber
             try
             {
                 string connstr = $"data source =localhost;database=SM2003;user id={userName};password={password};pooling=false;charset=utf8";
-                string sql = "create table device(deviceNo tinyint unsigned,deviceName varchar(20),ipAddress varchar(15),port smallint,enable tinyint(1)) DEFAULT CHARSET=utf8";
+                string sql = "create table device(deviceNo tinyint unsigned,deviceName varchar(20),ipAddress varchar(15),port smallint,channelCount smallint,enable tinyint(1)) DEFAULT CHARSET=utf8";
                 conn = new MySqlConnection(connstr);
                 cmd = new MySqlCommand(sql, conn);
                 conn.Open();
@@ -254,7 +254,7 @@ namespace OpticalFiber
 
                 for (int k = 1; k <= 8; k++)
                 {
-                    cmd = new MySqlCommand("insert into device(deviceNo,deviceName,ipAddress,port,enable) values ('" + k + "','设备" + k + "','10.10.10." + k + "','502','" + 0 + "')", conn);
+                    cmd = new MySqlCommand("insert into device(deviceNo,deviceName,ipAddress,port,channelCount,enable) values ('" + k + "','设备" + k + "','10.10.10." + k + "','502','1','" + 0 + "')", conn);
                     cmd.ExecuteNonQuery();
                 }
 
