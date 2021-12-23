@@ -11,6 +11,7 @@ namespace OpticalFiber
     {
         const string userName = "root";//root
         const string password = "123456";//adsensor
+        const string dbName = "SM2003_1";
         MySqlCommand cmd;
         MySqlConnection conn;
 
@@ -109,7 +110,7 @@ namespace OpticalFiber
         {
             try
             {
-                string connstr = $"data source =localhost;database=SM2003;user id={userName};password={password};pooling=false;charset=utf8";
+                string connstr = $"data source =localhost;database={dbName};user id={userName};password={password};pooling=false;charset=utf8";
                 string sql = "update prjname set prjname='" + prjname + "' where prjid='" + prjid + "'";
                 conn = new MySqlConnection(connstr);
                 cmd = new MySqlCommand(sql, conn);
@@ -132,7 +133,7 @@ namespace OpticalFiber
         {
             try
             {
-                string connstr = $"data source =localhost;database=SM2003;user id={userName};password={password};pooling=false;charset=utf8";
+                string connstr = $"data source =localhost;database={dbName};user id={userName};password={password};pooling=false;charset=utf8";
                 string sql = "update device set deviceName='" + struct_DeviceEnable.name + "',ipAddress='" + struct_DeviceEnable.ipEndPoint.Address.ToString() + "',port='" + struct_DeviceEnable.ipEndPoint.Port + "',enable='" + Convert.ToInt32(struct_DeviceEnable.enable) + "' where deviceNo='" + deviceNo + "'";
                 conn = new MySqlConnection(connstr);
                 cmd = new MySqlCommand(sql, conn);
@@ -158,7 +159,7 @@ namespace OpticalFiber
         {
             try
             {
-                string connstr = $"data source =localhost;database=SM2003;user id={userName};password={password};pooling=false;charset=utf8";
+                string connstr = $"data source =localhost;database={dbName};user id={userName};password={password};pooling=false;charset=utf8";
                 string sql = "update prtname set prtName='" + prtName.prtName + "' where deviceNo='" + prtName.deviceNo + "' and  channelNo='" + prtName.channelNo + "' and prtNo='" + prtName.prtNo + "'";
                 conn = new MySqlConnection(connstr);
                 cmd = new MySqlCommand(sql, conn);
@@ -188,7 +189,7 @@ namespace OpticalFiber
         {
             try
             {
-                string connstr = $"data source =localhost;database=SM2003;user id={userName};password={password};pooling=false;charset=utf8";
+                string connstr = $"data source =localhost;database={dbName};user id={userName};password={password};pooling=false;charset=utf8";
                 string sql = "update channel set channelName='" + struct_ChannelMsg.channelName + "',locationX='" + struct_ChannelMsg.locationX + "' ,locationY='" + struct_ChannelMsg.locationY + "',isEnable='" + Convert.ToInt32(struct_ChannelMsg.isEnable) + "' where deviceNo='" + struct_ChannelMsg.deviceNo + "' and  channelNo='" + struct_ChannelMsg.channelNo + "'";
                 conn = new MySqlConnection(connstr);
                 cmd = new MySqlCommand(sql, conn);
@@ -219,7 +220,7 @@ namespace OpticalFiber
         {
             try
             {
-                string connstr = $"data source =localhost;database=SM2003;user id={userName};password={password};pooling=false;charset=utf8";
+                string connstr = $"data source =localhost;database={dbName};user id={userName};password={password};pooling=false;charset=utf8";
                 string sql = "update pagepic set pic=@image where picNo='" + picNo + "'";
                 conn = new MySqlConnection(connstr);
                 cmd = new MySqlCommand(sql, conn);
@@ -247,7 +248,7 @@ namespace OpticalFiber
         {
             try
             {
-                string connstr = $"data source =localhost;database=SM2003;user id={userName};password={password};pooling=false;charset=utf8";
+                string connstr = $"data source =localhost;database={dbName};user id={userName};password={password};pooling=false;charset=utf8";
                 string sql = "update pwd set  passWord='" + MD5.GetMD5Hash(pwd) + "' where userName='" + userName + "'";
                 conn = new MySqlConnection(connstr);
                 cmd = new MySqlCommand(sql, conn);

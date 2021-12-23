@@ -12,6 +12,7 @@ namespace OpticalFiber
 
         const string userName = "root";//root
         const string password = "123456";//adsensor
+        const string dbName = "SM2003_1";
 
         MySqlCommand cmd;
         MySqlConnection conn;
@@ -22,7 +23,7 @@ namespace OpticalFiber
             try
             {
                 //主键消除重复
-                string connstr =$"data source =localhost;database=SM2003;user id={userName};password={password};pooling=false;charset=utf8";
+                string connstr =$"data source =localhost;database={dbName};user id={userName};password={password};pooling=false;charset=utf8";
                 string sql = "insert ignore into  alarm(datetime,deviceNo,channelNo,partitionNo,position,illustrate,relay,type,alarmvalue,threshold) values ('" + alarmMsg.DateTime + "','" + alarmMsg.DeviceNo + "','" + alarmMsg.ChannelNo + "','" + alarmMsg.PartitionNo + "','" + alarmMsg.Position + "','" + alarmMsg.Illustrate + "','" + alarmMsg.Relay + "','" + alarmMsg.Type + "','" + alarmMsg.AlarmValue + "', '" + alarmMsg.Threshold + "')";
                 conn = new MySqlConnection(connstr);
                 cmd = new MySqlCommand(sql, conn);
@@ -45,7 +46,7 @@ namespace OpticalFiber
         {
             try
             {
-                string connstr = $"data source =localhost;database=SM2003;user id={userName};password={password};pooling=false;charset=utf8";
+                string connstr = $"data source =localhost;database={dbName};user id={userName};password={password};pooling=false;charset=utf8";
                 string sql = "insert  into  audit(datetime,user,record) values ('" + OpRecord.dateTime + "','" + OpRecord.user + "','" + OpRecord.record + "')";
                 conn = new MySqlConnection(connstr);
                 cmd = new MySqlCommand(sql, conn);

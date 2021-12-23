@@ -19,16 +19,17 @@ namespace OpticalFiber
     {
         const string userName = "root";//root
         const string password = "123456";//adsensor
+        const string dbName = "SM2003_1";
         MySqlCommand cmd;
         MySqlConnection conn;
         public SQL_Create(BackgroundWorker worker)
         {
             try
             {
-                if (!IsDBExit("SM2003"))
+                if (!IsDBExit($"{dbName}"))
                 {
-                    worker.ReportProgress(10, "创建数据库SM2003");
-                    if (Create_DB("SM2003"))
+                    worker.ReportProgress(10, $"创建数据库{dbName}");
+                    if (Create_DB($"{dbName}"))
                     {
 
                     }
@@ -155,7 +156,7 @@ namespace OpticalFiber
             try
             {
                 string connstr = $"data source =localhost;user id={userName};password={password};pooling=false;charset=utf8";
-                string sql = "SELECT table_name FROM information_schema.TABLES where table_schema='sm2003' and table_name='" + tabName + "'";
+                string sql = $"SELECT table_name FROM information_schema.TABLES where table_schema='{dbName}' and table_name='" + tabName + "'";
                 conn = new MySqlConnection(connstr);
                 cmd = new MySqlCommand(sql, conn);
                 conn.Open();
@@ -209,7 +210,7 @@ namespace OpticalFiber
             bool result = false;
             try
             {
-                string connstr = $"data source =localhost;database=SM2003;user id={userName};password={password};pooling=false;charset=utf8";
+                string connstr = $"data source =localhost;database={dbName};user id={userName};password={password};pooling=false;charset=utf8";
                 string sql = "create table pwd(userName varchar(20) ,passWord varchar(32)) DEFAULT CHARSET=utf8";
                 conn = new MySqlConnection(connstr);
                 cmd = new MySqlCommand(sql, conn);
@@ -245,7 +246,7 @@ namespace OpticalFiber
             bool result = false;
             try
             {
-                string connstr = $"data source =localhost;database=SM2003;user id={userName};password={password};pooling=false;charset=utf8";
+                string connstr = $"data source =localhost;database={dbName};user id={userName};password={password};pooling=false;charset=utf8";
                 string sql = "create table device(deviceNo tinyint unsigned,deviceName varchar(20),ipAddress varchar(15),port smallint,channelCount smallint,enable tinyint(1)) DEFAULT CHARSET=utf8";
                 conn = new MySqlConnection(connstr);
                 cmd = new MySqlCommand(sql, conn);
@@ -278,7 +279,7 @@ namespace OpticalFiber
             bool result = false;
             try
             {
-                string connstr = $"data source =localhost;database=SM2003;user id={userName};password={password};pooling=false;charset=utf8";
+                string connstr = $"data source =localhost;database={dbName};user id={userName};password={password};pooling=false;charset=utf8";
                 string sql = "create table prjname(prjId  tinyint unsigned,prjName varchar(32)) DEFAULT CHARSET=utf8";
                 conn = new MySqlConnection(connstr);
                 cmd = new MySqlCommand(sql, conn);
@@ -306,7 +307,7 @@ namespace OpticalFiber
             bool result = false;
             try
             {
-                string connstr = $"data source =localhost;database=SM2003;user id={userName};password={password};pooling=false;charset=utf8";
+                string connstr = $"data source =localhost;database={dbName};user id={userName};password={password};pooling=false;charset=utf8";
                 string sql = "create table prtName(deviceNo tinyint unsigned,channelNo tinyint unsigned,prtNo tinyint unsigned,prtName varchar(32)) DEFAULT CHARSET=utf8";
                 conn = new MySqlConnection(connstr);
                 cmd = new MySqlCommand(sql, conn);
@@ -347,7 +348,7 @@ namespace OpticalFiber
             bool result = false;
             try
             {
-                string connstr = $"data source =localhost;database=SM2003;user id={userName};password={password};pooling=false;charset=utf8";
+                string connstr = $"data source =localhost;database={dbName};user id={userName};password={password};pooling=false;charset=utf8";
                 string sql = "create table channel(deviceNo tinyint unsigned,channelNo tinyint unsigned,channelName varchar(32),locationX double,locationY double,isEnable tinyint(1)) DEFAULT CHARSET=utf8";
                 conn = new MySqlConnection(connstr);
                 cmd = new MySqlCommand(sql, conn);
@@ -383,7 +384,7 @@ namespace OpticalFiber
             {
                 Image image = Properties.Resources.powerStation;
                 byte[] bytes = ConfigClass.ImgToBytes(image);
-                string connstr = $"data source =localhost;database=SM2003;user id={userName};password={password};pooling=false;charset=utf8";
+                string connstr = $"data source =localhost;database={dbName};user id={userName};password={password};pooling=false;charset=utf8";
                 string sql = "create table pagePic(picNo tinyint unsigned,pic mediumblob) DEFAULT CHARSET=utf8";
                 conn = new MySqlConnection(connstr);
                 cmd = new MySqlCommand(sql, conn);
@@ -415,7 +416,7 @@ namespace OpticalFiber
             bool result = false;
             try
             {
-                string connstr = $"data source =localhost;database=SM2003;user id={userName};password={password};pooling=false;charset=utf8";
+                string connstr = $"data source =localhost;database={dbName};user id={userName};password={password};pooling=false;charset=utf8";
                 string sql = "create table alarm(dateTime datetime,deviceNo tinyint unsigned,channelNo tinyint unsigned,partitionNo tinyint unsigned,position smallint,illustrate varchar(32),relay tinyint unsigned,type varchar(10),alarmvalue double,threshold double,primary key(datetime,deviceNo,channelNo,partitionNo)) DEFAULT CHARSET=utf8";
                 conn = new MySqlConnection(connstr);
                 cmd = new MySqlCommand(sql, conn);
@@ -441,7 +442,7 @@ namespace OpticalFiber
             bool result = false;
             try
             {
-                string connstr = $"data source =localhost;database=SM2003;user id={userName};password={password};pooling=false;charset=utf8";
+                string connstr = $"data source =localhost;database={dbName};user id={userName};password={password};pooling=false;charset=utf8";
                 string sql = "create table audit(dateTime datetime,user tinyint unsigned,record varchar(32)) DEFAULT CHARSET=utf8";
                 conn = new MySqlConnection(connstr);
                 cmd = new MySqlCommand(sql, conn);
